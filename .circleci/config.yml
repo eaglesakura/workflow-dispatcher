@@ -12,16 +12,8 @@ executors:
       - image: circleci/android:api-28-alpha
     environment:
       TZ: Asia/Tokyo
-      _JAVA_OPTIONS: -Xmx4g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
-      GRADLE_OPTS: -Xmx4g -Dorg.gradle.daemon=false
-  kotlin-jdk8:
-    working_directory: /home/circleci/project
-    docker:
-      - image: azul/zulu-openjdk:8
-    environment:
-      TZ: Asia/Tokyo
-      _JAVA_OPTIONS: -Xmx4g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
-      GRADLE_OPTS: -Xmx4g -Dorg.gradle.daemon=false
+      _JAVA_OPTIONS: -Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+      GRADLE_OPTS: -Xmx3g -Dorg.gradle.daemon=false
 commands:
   internal-checkout:
     steps:
@@ -128,9 +120,9 @@ jobs:
       - run:
           name: local-test
           command: ./gradlew "<< parameters.localTestTask >>"
-      - run:
-          name: instrumentation
-          command: ./gradlew "<< parameters.instrumentationTestTask >>"
+#      - run:
+#          name: instrumentation
+#          command: ./gradlew "<< parameters.instrumentationTestTask >>"
       - run:
           name: lint
           command: ./gradlew "<< parameters.lintTask >>"
@@ -205,13 +197,13 @@ workflows:
       - android-test:
           name: test
           context: bintray-maven
-          module-path: firearm-experimental
+          module-path: firearm-workflow
           <<: *filter-for-assemble
           <<: *depends-from-tests
       - deploy-to-bintray-android:
           name: deploy-to-bintray
           context: bintray-maven
-          module-path: firearm-experimental
+          module-path: firearm-workflow
           <<: *filter-for-assemble
           <<: *depends-from-deploy
 # EOF
