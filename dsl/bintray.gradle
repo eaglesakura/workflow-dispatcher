@@ -1,0 +1,74 @@
+group = artifact_group
+version = artifact_version
+
+if (project.hasProperty("install_snapshot")) {
+    apply plugin: 'maven'
+} else {
+    apply plugin: 'com.jfrog.bintray'
+    apply plugin: 'com.github.dcendents.android-maven'  // Generate POM for bintray.
+}
+apply plugin: 'org.jetbrains.dokka-android'
+
+dokka {
+    outputFormat = 'javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+task javadocJar(type: Jar, dependsOn: dokka) {
+    from "$buildDir/dokka"
+    classifier = 'javadoc'
+}
+android.libraryVariants.all { variant ->
+    if ("release" != variant.name || "" == artifact_version) {
+        return
+    }
+
+    artifacts {
+        archives javadocJar
+        archives sourcesJar
+    }
+}
+
+if (project.hasProperty("install_snapshot")) {
+    apply plugin: 'maven'
+    println("deploy to mavenLocal()")
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: "file://${System.getProperty('user.home')}/.m2/repository")
+            }
+        }
+    }
+} else {
+    println("deploy to bintray.")
+    bintray {
+        user = 'eaglesakura'
+        key = System.env.BINTRAY_API_KEY
+        publish = true
+        override = true
+        pkg {
+            repo = "maven"
+            name = artifact_name
+            vcsUrl = bintray_vcs_url
+            issueTrackerUrl = "${bintray_vcs_url}/issues"
+            licenses = ["MIT"]
+            labels = bintray_labels
+            version {
+                name = project.version
+                released = new Date()
+                gpg {
+                    sign = true
+                    passphrase = System.env.BINTRAY_GPG_PASS
+                }
+            }
+        }
+        configurations = ['archives']
+    }
+}
+
+
+println ":${project.name}:bintrayUpload  -> ${artifact_group} : ${version}"
+println ":${project.name}:uploadArchives -> file:${System.getProperty('user.home')}/.m2/repository : ${version}"

@@ -1,0 +1,217 @@
+version: 2.1
+executors:
+  gcloud:
+    working_directory: /home/circleci/project
+    docker:
+      - image: google/cloud-sdk
+    environment:
+      TZ: Asia/Tokyo
+  android-build:
+    working_directory: /home/circleci/project
+    docker:
+      - image: circleci/android:api-28-alpha
+    environment:
+      TZ: Asia/Tokyo
+      _JAVA_OPTIONS: -Xmx4g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+      GRADLE_OPTS: -Xmx4g -Dorg.gradle.daemon=false
+  kotlin-jdk8:
+    working_directory: /home/circleci/project
+    docker:
+      - image: azul/zulu-openjdk:8
+    environment:
+      TZ: Asia/Tokyo
+      _JAVA_OPTIONS: -Xmx4g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+      GRADLE_OPTS: -Xmx4g -Dorg.gradle.daemon=false
+commands:
+  internal-checkout:
+    steps:
+      - checkout
+      - run:
+          name: generate-cache-key
+          command: |
+            echo "${CIRCLE_SHA1}-${CIRCLE_BRANCH:-nil}-${CIRCLE_TAG:-nil}-`date "+%Y%m%d"`" > .cachekey
+            cat .cachekey
+  module-checkout:
+    parameters:
+      module-path:
+        type: string
+    steps:
+      - internal-checkout
+      - restore_cache:
+          key: configs-{{ checksum ".cachekey" }}
+      - restore_cache:
+          key: gradle-{{ checksum ".circleci/config.yml" }}-{{ checksum "build.gradle.kts" }}-{{ checksum  "<<parameters.module-path>>/build.gradle.kts" }}
+  module-save-cache:
+    parameters:
+      module-path:
+        type: string
+    steps:
+      - save_cache:
+          paths:
+            - ~/.gradle
+            - ~/.m2
+          key: gradle-{{ checksum ".circleci/config.yml" }}-{{ checksum "build.gradle.kts" }}-{{ checksum  "<<parameters.module-path>>/build.gradle.kts" }}
+jobs:
+  configure:
+    executor:
+      name: android-build
+    steps:
+      - internal-checkout
+      - run:
+          name: snapshot-build-number
+          command: |
+            echo "$CIRCLE_BUILD_NUM" > .configs/secrets/build-number.env
+      - save_cache:
+          paths:
+            - .configs/secrets
+          key: configs-{{ checksum ".cachekey" }}
+  ##############################################
+  # unit-test in parameters.module
+  ##############################################
+  kotlin-test:
+    parameters:
+      localTestTask:
+        type: string
+        default: test
+      formatTask:
+        type: string
+        default: format
+    executor:
+      name: android-build
+    steps:
+      - module-checkout:
+          module-path: << parameters.module-path >>
+      - run:
+          name: local-test
+          command: ./gradlew "<< parameters.localTestTask >>"
+      - run:
+          name: format
+          command: |
+            ./gradlew "<< parameters.formatTask >>"
+            if [ "`git status | grep '.kt'`" != "" ]; then
+              echo "kotlin format error."
+              echo "run -> ./gradlew format"
+              exit 1
+            fi
+      - module-save-cache:
+          module-path: << parameters.module-path >>
+      - store_artifacts:
+          destination: archive-test-reports
+          path: "<< parameters.module-path >>/build/reports"
+      - store_artifacts:
+          destination: archive-outputs
+          path: "<< parameters.module-path >>/build/outputs"
+      - store_test_results:
+          destination: archive-outputs
+          path: "<< parameters.module-path >>/build/test-results"
+  android-test:
+    parameters:
+      module-path:
+        type: string
+      localTestTask:
+        type: string
+        default: testDebug
+      instrumentationTestTask:
+        type: string
+        default: assembleAndroidTest
+      lintTask:
+        type: string
+        default: lintDebug
+      formatTask:
+        type: string
+        default: format
+    executor:
+      name: android-build
+    steps:
+      - module-checkout:
+          module-path: << parameters.module-path >>
+      - run:
+          name: local-test
+          command: ./gradlew "<< parameters.localTestTask >>"
+      - run:
+          name: instrumentation
+          command: ./gradlew "<< parameters.instrumentationTestTask >>"
+      - run:
+          name: lint
+          command: ./gradlew "<< parameters.lintTask >>"
+      - run:
+          name: format
+          command: |
+            ./gradlew "<< parameters.formatTask >>"
+            if [ "`git status | grep '.kt'`" != "" ]; then
+              echo "kotlin format error."
+              echo "run -> ./gradlew format"
+              exit 1
+            fi
+      - module-save-cache:
+          module-path: << parameters.module-path >>
+      - store_artifacts:
+          destination: archive-test-reports
+          path: "<< parameters.module-path >>/build/reports"
+      - store_artifacts:
+          destination: archive-outputs
+          path: "<< parameters.module-path >>/build/outputs"
+      - store_test_results:
+          destination: archive-outputs
+          path: "<< parameters.module-path >>/build/test-results"
+  ##############################################
+  # deploy in parameters.module
+  ##############################################
+  deploy-to-bintray-android:
+    parameters:
+      module-path:
+        type: string
+    executor:
+      name: android-build
+    steps:
+      - module-checkout:
+          module-path: << parameters.module-path >>
+      - run:
+          name: deploy
+          command: ./gradlew bintrayUpload
+  deploy-to-bintray-kotlin:
+    parameters:
+      module-path:
+        type: string
+    executor:
+      name: android-build
+    steps:
+      - module-checkout
+      - run:
+          name: deploy
+          command: ./gradlew build bintrayUpload -x test
+aliases:
+  - &depends-from-tests
+    requires:
+      - configure
+  - &depends-from-deploy
+    requires:
+      - test
+  - &filter-for-assemble
+    filters:
+      branches:
+        only:
+          - /^v[0-9].*/
+          - /^feature\/id\/.*/
+      tags:
+        only:
+          - /^v[0-9].*/
+workflows:
+  assemble-flow:
+    jobs:
+      - configure:
+          context: bintray-maven
+          <<: *filter-for-assemble
+      - android-test:
+          name: test
+          context: bintray-maven
+          module-path: firearm-experimental
+          <<: *filter-for-assemble
+          <<: *depends-from-tests
+      - deploy-to-bintray-android:
+          name: deploy-to-bintray
+          context: bintray-maven
+          module-path: firearm-experimental
+          <<: *filter-for-assemble
+          <<: *depends-from-deploy
+# EOF
