@@ -45,8 +45,8 @@ class ActivityResultAction<T : Any> internal constructor(
     ) {
         assertUIThread()
 
+        val holder = registry.getStateHolder(sender)
         if (flowState != null) {
-            val holder = registry.getStateHolder(sender)
             registry.setExtra(
                 holder, id, bundleOf(
                     Pair(EXTRA_STATE, flowState)

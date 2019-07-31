@@ -40,9 +40,10 @@ class DialogAction<T : Any> internal constructor(
     operator fun invoke(sender: T, factory: ParcelableDialogFactory, flowState: Bundle? = null) {
         assertUIThread()
 
+        val holder = registry.getStateHolder(sender)
         if (flowState != null) {
             registry.setExtra(
-                registry.getStateHolder(sender), id, bundleOf(
+                holder, id, bundleOf(
                     Pair(EXTRA_STATE, flowState)
                 )
             )
