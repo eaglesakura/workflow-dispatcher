@@ -1,6 +1,6 @@
 import java.nio.charset.Charset
 
-extra["base_version"] = "0.1"
+extra["base_version"] = "0.2"
 extra["artifact_name"] = project.name
 extra["artifact_group"] = "com.eaglesakura.firearm.${extra["artifact_name"]}"
 extra["bintray_user"] = "eaglesakura"

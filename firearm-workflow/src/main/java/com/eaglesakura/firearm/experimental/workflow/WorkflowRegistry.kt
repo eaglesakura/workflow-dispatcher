@@ -7,7 +7,6 @@ import com.eaglesakura.firearm.experimental.workflow.dialog.DialogAction
 import com.eaglesakura.firearm.experimental.workflow.dialog.DialogResult
 import com.eaglesakura.firearm.experimental.workflow.internal.WorkflowDialogFragment
 import com.eaglesakura.firearm.experimental.workflow.internal.WorkflowProviderFragment
-import com.eaglesakura.firearm.experimental.workflow.internal.WorkflowStateHolder
 import com.eaglesakura.firearm.experimental.workflow.permission.RuntimePermissionAction
 import kotlin.reflect.KClass
 
@@ -65,16 +64,16 @@ class WorkflowRegistry<T : Any>(
     private val onRequestPermissionsResultHandlers: MutableMap<Int, (sender: T, permissions: List<String>, grantResults: List<Int>) -> Unit> =
         mutableMapOf()
 
-    internal fun getExtra(state: WorkflowStateHolder, flowId: Any): Bundle? {
-        return state.handle.get<Bundle>("internal.workflow.$flowId")
+    internal fun getExtra(state: Bundle, flowId: Any): Bundle? {
+        return state.getBundle("internal.workflow.$flowId")
     }
 
-    internal fun setExtra(state: WorkflowStateHolder, flowId: Any, bundle: Bundle) {
-        state.handle.set("internal.workflow.$flowId", bundle)
+    internal fun setExtra(state: Bundle, flowId: Any, bundle: Bundle) {
+        state.putBundle("internal.workflow.$flowId", bundle)
     }
 
-    internal fun removeExtra(state: WorkflowStateHolder, flowId: Any) {
-        state.handle.remove<Bundle>("internal.workflow.$flowId")
+    internal fun removeExtra(state: Bundle, flowId: Any) {
+        state.remove("internal.workflow.$flowId")
     }
 
     internal fun getProvider(owner: T): WorkflowProviderFragment<T> {

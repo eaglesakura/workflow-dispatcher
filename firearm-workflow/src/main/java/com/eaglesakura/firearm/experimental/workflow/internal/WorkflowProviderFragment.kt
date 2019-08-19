@@ -2,11 +2,11 @@ package com.eaglesakura.firearm.experimental.workflow.internal
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.transaction
-import com.eaglesakura.armyknife.android.extensions.UIHandler
 import com.eaglesakura.firearm.experimental.workflow.WorkflowRegistry
 
 internal class WorkflowProviderFragment<T : Any> : Fragment() {
@@ -23,37 +23,42 @@ internal class WorkflowProviderFragment<T : Any> : Fragment() {
             }
         }
 
-    private var _state: Bundle? = Bundle()
+    var state: Bundle = Bundle()
+        private set
 
-    /**
-     * Workflow state
-     */
-    val state: WorkflowStateHolder by lazy { WorkflowStateHolder.from(this) }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedInstanceState?.getBundle(SAVED_STATE)?.also { state ->
+            Log.d("Workflow", "restore state")
+            this.state = state
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBundle(SAVED_STATE, state)
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        UIHandler.post {
-            val self = this.owner
-            val registry =
-                WorkflowRegistry.of(self)
-            registry.onRequestPermissionsResult(self, requestCode, permissions, grantResults)
-        }
+        val self = this.owner
+        val registry =
+            WorkflowRegistry.of(self)
+        registry.onRequestPermissionsResult(self, requestCode, permissions, grantResults)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        UIHandler.post {
-            val self = this.owner
-            val registry =
-                WorkflowRegistry.of(self)
-            registry.onActivityResult(self, requestCode, resultCode, data)
-        }
+        val self = this.owner
+        val registry =
+            WorkflowRegistry.of(self)
+        registry.onActivityResult(self, requestCode, resultCode, data)
     }
 
     companion object {
         private const val FRAGMENT_TAG = "com.eaglesakura.WorkflowProviderFragment"
+        private const val SAVED_STATE = "SAVED_STATE"
 
         @UiThread
         private fun <T : Any> fragmentOf(fragment: Fragment): WorkflowProviderFragment<T> {
