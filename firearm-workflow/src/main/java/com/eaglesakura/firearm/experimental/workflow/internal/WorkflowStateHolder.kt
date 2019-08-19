@@ -8,7 +8,7 @@ import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 
-internal class WorkflowStateHolder(
+internal class WorkflowStateHolder internal constructor(
     val handle: SavedStateHandle
 ) : ViewModel() {
 

@@ -1,10 +1,12 @@
 package com.eaglesakura.firearm.experimental.workflow.internal
 
 import android.content.Intent
+import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.transaction
+import com.eaglesakura.armyknife.android.extensions.UIHandler
 import com.eaglesakura.firearm.experimental.workflow.WorkflowRegistry
 
 internal class WorkflowProviderFragment<T : Any> : Fragment() {
@@ -21,6 +23,8 @@ internal class WorkflowProviderFragment<T : Any> : Fragment() {
             }
         }
 
+    private var _state: Bundle? = Bundle()
+
     /**
      * Workflow state
      */
@@ -31,17 +35,21 @@ internal class WorkflowProviderFragment<T : Any> : Fragment() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        val self = this.owner
-        val registry =
-            WorkflowRegistry.of(self)
-        registry.onRequestPermissionsResult(self, requestCode, permissions, grantResults)
+        UIHandler.post {
+            val self = this.owner
+            val registry =
+                WorkflowRegistry.of(self)
+            registry.onRequestPermissionsResult(self, requestCode, permissions, grantResults)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val self = this.owner
-        val registry =
-            WorkflowRegistry.of(self)
-        registry.onActivityResult(self, requestCode, resultCode, data)
+        UIHandler.post {
+            val self = this.owner
+            val registry =
+                WorkflowRegistry.of(self)
+            registry.onActivityResult(self, requestCode, resultCode, data)
+        }
     }
 
     companion object {

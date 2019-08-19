@@ -3,6 +3,7 @@ package com.eaglesakura.firearm.experimental.workflow.dialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.parcel.IgnoredOnParcel
@@ -24,19 +25,20 @@ import kotlinx.android.parcel.Parcelize
  * @see androidx.appcompat.app.AlertDialog
  */
 @Parcelize
-class AlertDialogFactory internal constructor(
-    internal val title: String?,
+open class AlertDialogFactory protected constructor(
+    val title: String?,
 
-    internal val message: String?,
+    val message: String?,
 
-    internal val positiveButton: String?,
+    val positiveButton: String?,
 
-    internal val negativeButton: String?,
+    val negativeButton: String?,
 
-    internal val neutralButton: String?,
+    val neutralButton: String?,
 
-    internal val cancelable: Boolean
+    val cancelable: Boolean,
 
+    val notFocusable: Boolean
 ) : ParcelableDialogFactory {
 
     @IgnoredOnParcel
@@ -65,7 +67,11 @@ class AlertDialogFactory internal constructor(
                 }
             }
             fragment.isCancelable = cancelable
-        }.create()
+        }.create().also { dialog ->
+            if (notFocusable) {
+                dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            }
+        }
     }
 
     override fun getResult(
@@ -122,6 +128,13 @@ class AlertDialogFactory internal constructor(
         var cancelable: Boolean = true
 
         /**
+         * If this value set 'true',
+         * then 'WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE' add to Dialog's window.
+         * This option use to Immersive Mode.
+         */
+        var notFocusable: Boolean = false
+
+        /**
          * Build DialogFactory.
          *
          * @see ParcelableDialogFactory
@@ -133,7 +146,8 @@ class AlertDialogFactory internal constructor(
                 positiveButton = this.positiveButton,
                 negativeButton = this.negativeButton,
                 neutralButton = this.neutralButton,
-                cancelable = this.cancelable
+                cancelable = this.cancelable,
+                notFocusable = this.notFocusable
             )
         }
     }

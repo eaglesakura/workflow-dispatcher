@@ -34,5 +34,5 @@ dependencies {
     /**
      * Libraries.
      */
-    "api"("com.eaglesakura.armyknife.armyknife-jetpack:armyknife-jetpack:1.3.12")
+    "api"("com.eaglesakura.armyknife.armyknife-jetpack:armyknife-jetpack:1.3.14")
 }
