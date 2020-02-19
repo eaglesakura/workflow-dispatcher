@@ -64,15 +64,15 @@ class WorkflowRegistry<T : Any>(
     private val onRequestPermissionsResultHandlers: MutableMap<Int, (sender: T, permissions: List<String>, grantResults: List<Int>) -> Unit> =
         mutableMapOf()
 
-    internal fun getExtra(state: Bundle, flowId: Any): Bundle? {
+    internal fun getExtra(state: Bundle, flowId: String): Bundle? {
         return state.getBundle("internal.workflow.$flowId")
     }
 
-    internal fun setExtra(state: Bundle, flowId: Any, bundle: Bundle) {
+    internal fun setExtra(state: Bundle, flowId: String, bundle: Bundle) {
         state.putBundle("internal.workflow.$flowId", bundle)
     }
 
-    internal fun removeExtra(state: Bundle, flowId: Any) {
+    internal fun removeExtra(state: Bundle, flowId: String) {
         state.remove("internal.workflow.$flowId")
     }
 
@@ -95,7 +95,7 @@ class WorkflowRegistry<T : Any>(
      * new Dialog and receive.
      */
     fun dialogAction(
-        id: Any,
+        id: String,
         onDismissHandler: (sender: T, result: DialogResult, savedFlowState: Bundle?) -> Unit
     ): DialogAction<T> {
         val requestCode = makeRequestCode(id)
@@ -119,7 +119,7 @@ class WorkflowRegistry<T : Any>(
      * startActivityForResult with handler.
      */
     fun activityResultAction(
-        id: Any,
+        id: String,
         onActivityResultHandler: (sender: T, result: Int, data: Intent?, savedFlowState: Bundle?) -> Unit
     ): ActivityResultAction<T> {
         val requestCode = makeRequestCode(id)
@@ -144,7 +144,7 @@ class WorkflowRegistry<T : Any>(
      * @see android.content.pm.PackageManager.PERMISSION_DENIED
      */
     fun requestPermissionsAction(
-        id: Any,
+        id: String,
         onRequestPermissionsResultHandler: (sender: T, permissions: List<String>, grantResults: List<Int>, savedFlowState: Bundle?) -> Unit
     ): RuntimePermissionAction<T> {
         val requestCode = makeRequestCode(id)

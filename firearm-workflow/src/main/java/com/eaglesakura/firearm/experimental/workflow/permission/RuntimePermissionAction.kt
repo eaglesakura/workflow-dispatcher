@@ -8,7 +8,7 @@ import com.eaglesakura.firearm.experimental.workflow.WorkflowRegistry
 
 class RuntimePermissionAction<T : Any> internal constructor(
     private val registry: WorkflowRegistry<T>,
-    private val id: Any,
+    private val id: String,
     private val requestCode: Int,
     private val onRequestPermissionsResultHandler: (sender: T, permissions: List<String>, grantResults: List<Int>, savedFlowState: Bundle?) -> Unit
 ) {

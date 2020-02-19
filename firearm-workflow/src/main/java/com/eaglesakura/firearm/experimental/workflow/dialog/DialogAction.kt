@@ -28,7 +28,7 @@ import com.eaglesakura.firearm.experimental.workflow.internal.WorkflowDialogFrag
  */
 class DialogAction<T : Any> internal constructor(
     private val registry: WorkflowRegistry<T>,
-    private val id: Any,
+    private val id: String,
     private val requestCode: Int,
     private val onDismissHandler: (sender: T, result: DialogResult, savedFlowState: Bundle?) -> Unit
 ) {

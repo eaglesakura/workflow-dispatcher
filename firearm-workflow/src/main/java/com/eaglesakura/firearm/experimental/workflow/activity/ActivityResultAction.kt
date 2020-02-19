@@ -28,7 +28,7 @@ import com.eaglesakura.firearm.experimental.workflow.WorkflowRegistry
  */
 class ActivityResultAction<T : Any> internal constructor(
     private val registry: WorkflowRegistry<T>,
-    private val id: Any,
+    private val id: String,
     private val requestCode: Int,
     private val onActivityResultHandler: (sender: T, result: Int, data: Intent?, savedFlowState: Bundle?) -> Unit
 ) {
