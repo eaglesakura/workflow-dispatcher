@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.transaction
+import androidx.fragment.app.commitNow
 import com.eaglesakura.firearm.experimental.workflow.WorkflowRegistry
 
 internal class WorkflowProviderFragment<T : Any> : Fragment() {
@@ -70,7 +70,7 @@ internal class WorkflowProviderFragment<T : Any> : Fragment() {
 
             val child =
                 WorkflowProviderFragment<T>()
-            fragment.childFragmentManager.transaction(now = true) {
+            fragment.childFragmentManager.commitNow {
                 add(
                     child,
                     FRAGMENT_TAG
@@ -89,7 +89,7 @@ internal class WorkflowProviderFragment<T : Any> : Fragment() {
 
             val child =
                 WorkflowProviderFragment<T>()
-            activity.supportFragmentManager.transaction(now = true) {
+            activity.supportFragmentManager.commitNow {
                 add(
                     child,
                     FRAGMENT_TAG
