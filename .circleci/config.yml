@@ -9,7 +9,7 @@ executors:
   android-build:
     working_directory: /home/circleci/project
     docker:
-      - image: circleci/android:api-28-alpha
+      - image: circleci/android:api-29-node
     environment:
       TZ: Asia/Tokyo
       _JAVA_OPTIONS: -Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
