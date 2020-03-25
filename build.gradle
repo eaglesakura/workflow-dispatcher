@@ -1,0 +1,39 @@
+buildscript {
+    ext {
+        versions = [
+                android_minSdkVersion   : 21,
+                android_targetSdkVersion: 29,
+                kotlin                  : "1.3.71",
+                kotlin_coroutines       : "1.3.3",
+                android_plugin          : "3.6.1",
+        ]
+        kotlin_version = '1.3.71'
+    }
+    repositories {
+        mavenLocal()
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:${versions.android_plugin}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+        classpath("org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.18") // kotlin-docs
+        classpath("com.github.ben-manes:gradle-versions-plugin:0.21.0") // version checking plugin
+
+        // deploy to bintray
+        classpath("com.github.dcendents:android-maven-gradle-plugin:2.1")
+        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        jcenter()
+        mavenCentral()
+        maven { url "https://dl.bintray.com/eaglesakura/maven/" }
+    }
+    apply from: rootProject.file("configure.gradle.kts")
+}

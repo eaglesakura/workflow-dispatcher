@@ -1,1 +1,4 @@
-include(":firearm-workflow")
+include ":firearm-workflow-annotations"
+include ":firearm-workflow"
+include ":firearm-workflow-processor"
+include ':example'
