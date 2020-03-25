@@ -43,7 +43,7 @@ internal class WorkflowDialogFragment : DialogFragment {
         super.onCancel(dialog)
         Log.d("WorkflowDialogFragment", "onCancel($dialog)")
         requireParentFragment().onActivityResult(
-            arguments!!.getInt(ARGUMENT_REQUEST_CODE, 0),
+            requireArguments().getInt(ARGUMENT_REQUEST_CODE, 0),
             Activity.RESULT_CANCELED,
             null
         )
@@ -54,7 +54,7 @@ internal class WorkflowDialogFragment : DialogFragment {
         Log.d("WorkflowDialogFragment", "onDismiss($dialog)")
         factory.getResult(this, dialog)?.also { dialogResult ->
             requireParentFragment().onActivityResult(
-                arguments!!.getInt(ARGUMENT_REQUEST_CODE, 0),
+                requireArguments().getInt(ARGUMENT_REQUEST_CODE, 0),
                 Activity.RESULT_OK,
                 Intent().also { it.putExtra(RESULT_DIALOG_RESULT, dialogResult) }
             )
