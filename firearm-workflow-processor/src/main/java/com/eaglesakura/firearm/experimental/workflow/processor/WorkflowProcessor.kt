@@ -32,7 +32,7 @@ private val intentClass =
 
 private val TypeElement.workflowRegistryClass: ParameterizedTypeName
     get() = ClassName("com.eaglesakura.firearm.experimental.workflow", "WorkflowRegistry")
-        .parameterizedBy(className)
+        .parameterizedBy(poetClassName)
 
 private val stringList: ParameterizedTypeName
     get() = ClassName("kotlin.collections", "List")
@@ -42,27 +42,17 @@ private val TypeElement.workflowActivityEntryClass: ParameterizedTypeName
     get() = ClassName(
         "com.eaglesakura.firearm.experimental.workflow.activity",
         "ActivityResultAction"
-    ).parameterizedBy(className)
+    ).parameterizedBy(poetClassName)
 
 private val TypeElement.workflowDialogEntryClass: ParameterizedTypeName
     get() = ClassName("com.eaglesakura.firearm.experimental.workflow.dialog", "DialogAction")
-        .parameterizedBy(className)
+        .parameterizedBy(poetClassName)
 
 private val TypeElement.workflowRuntimePermissionEntryClass: ParameterizedTypeName
     get() = ClassName(
         "com.eaglesakura.firearm.experimental.workflow.permission",
         "RuntimePermissionAction"
-    ).parameterizedBy(className)
-
-private val ExecutableElement.methodName: String
-    get() {
-        val index = simpleName.toString().lastIndexOf("$")
-        return if (index < 0) {
-            simpleName.toString()
-        } else {
-            simpleName.toString().substring(0, index)
-        }
-    }
+    ).parameterizedBy(poetClassName)
 
 /**
  * Kotlin Annotation Processor
@@ -71,7 +61,14 @@ class WorkflowProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
         roundEnv.getElementsAnnotatedWith(WorkflowOwner::class.java).forEach { ownerElement ->
-            generateExtension(roundEnv, ownerElement as TypeElement)
+            //            generateExtension(roundEnv, ownerElement as TypeElement)
+            WorkflowFileGenerator(
+                processor = this,
+                elementUtils = processingEnv.elementUtils!!,
+                processingEnv = processingEnv,
+                roundEnv = roundEnv,
+                workflowOwner = ownerElement as TypeElement
+            ).generate()
         }
         return true
     }
@@ -80,7 +77,6 @@ class WorkflowProcessor : AbstractProcessor() {
         roundEnv: RoundEnvironment,
         workflowOwner: TypeElement
     ) {
-
         val className = workflowOwner.simpleName
         val fileName = "${className}GeneratedExtensions.kt"
         println("Generate: $fileName")
@@ -90,13 +86,13 @@ class WorkflowProcessor : AbstractProcessor() {
 
         val generateFile = filer.createResource(
             StandardLocation.SOURCE_OUTPUT,
-            workflowOwner.className.packageName,
+            workflowOwner.poetClassName.packageName,
             fileName
         )
 
         generateFile.openWriter().use { writer ->
             val spec = FileSpec.builder(
-                workflowOwner.className.packageName,
+                workflowOwner.poetClassName.packageName,
                 workflowOwner.simpleName.toString()
             )
 
@@ -129,7 +125,7 @@ class WorkflowProcessor : AbstractProcessor() {
             spec.addFunction(
                 FunSpec.builder("loadWorkflowModules")
                     .addModifiers(KModifier.INTERNAL)
-                    .receiver(workflowOwner.className)
+                    .receiver(workflowOwner.poetClassName)
                     .addStatement("initialized = true")
                     .build()
             )
@@ -229,7 +225,7 @@ class WorkflowProcessor : AbstractProcessor() {
         // Generate Entry-Point function.
         val extensionFunc = FunSpec.builder(flowAnnotation.entryPointName).apply {
             addModifiers(KModifier.INTERNAL)
-            receiver(workflowOwner.className)
+            receiver(workflowOwner.poetClassName)
             addStatement("validateFlow()")
 
             addParameter("factory", parcelableDialogFactoryClass)
@@ -287,7 +283,7 @@ class WorkflowProcessor : AbstractProcessor() {
         // Generate Entry-Point function.
         val extensionFunc = FunSpec.builder(flowAnnotation.entryPointName).apply {
             addModifiers(KModifier.INTERNAL)
-            receiver(workflowOwner.className)
+            receiver(workflowOwner.poetClassName)
             addStatement("validateFlow()")
 
             addParameter("intent", intentClass)
@@ -350,7 +346,7 @@ class WorkflowProcessor : AbstractProcessor() {
         // Generate Entry-Point function.
         val extensionFunc = FunSpec.builder(flowAnnotation.entryPointName).apply {
             addModifiers(KModifier.INTERNAL)
-            receiver(workflowOwner.className)
+            receiver(workflowOwner.poetClassName)
             addStatement("validateFlow()")
             addParameter(
                 ParameterSpec.builder("permissions", stringList)
