@@ -68,7 +68,9 @@ internal object AppCompatActivityRuntimePermissionWorkflow {
         )
 
     private val requestRuntimePermissionImpl =
-        workflowRegistry.requestPermissionsAction("requestRuntimePermissionImpl") { sender, permissions, grantResults, savedFlowState ->
+        workflowRegistry.requestPermissionsAction("requestRuntimePermissionImpl") { sender, result, savedFlowState ->
+            val permissions = result.permissions
+            val grantResults = result.granted
 
             assertEquals(1, permissions.size)
             assertEquals(grantResults.size, permissions.size)
@@ -92,7 +94,9 @@ internal object FragmentRuntimePermissionWorkflow {
         )
 
     private val requestRuntimePermissionImpl =
-        workflowRegistry.requestPermissionsAction("requestRuntimePermissionImpl") { sender, permissions, grantResults, savedFlowState ->
+        workflowRegistry.requestPermissionsAction("requestRuntimePermissionImpl") { sender, result, savedFlowState ->
+            val permissions = result.permissions
+            val grantResults = result.granted
 
             assertEquals(1, permissions.size)
             assertEquals(grantResults.size, permissions.size)

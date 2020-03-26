@@ -112,8 +112,9 @@ internal object SendActivityBootFlow {
     }
 
     private val bootSecondActivity =
-        workflowRegistry.activityResultAction("bootSecondActivity") { sender, result, data, savedFlowState ->
-            assertEquals(Activity.RESULT_OK, result)
+        workflowRegistry.activityResultAction("bootSecondActivity") { sender, result, savedFlowState ->
+            assertEquals(Activity.RESULT_OK, result.result)
+            val data = result.data
             assertNotNull(data)
             assertEquals("value", data?.getStringExtra("key"))
             assertNotNull(savedFlowState)
@@ -123,8 +124,9 @@ internal object SendActivityBootFlow {
         }
 
     private val bootSecondActivityWithoutState =
-        workflowRegistry.activityResultAction("bootSecondActivityWithoutState") { sender, result, data, savedFlowState ->
-            assertEquals(Activity.RESULT_OK, result)
+        workflowRegistry.activityResultAction("bootSecondActivityWithoutState") { sender, result, savedFlowState ->
+            assertEquals(Activity.RESULT_OK, result.result)
+            val data = result.data
             assertNotNull(data)
             assertEquals("value", data?.getStringExtra("key"))
             assertNull(savedFlowState)
@@ -161,8 +163,9 @@ internal object SendActivityBootFlowByFragment {
     }
 
     private val bootSecondActivity =
-        workflowRegistry.activityResultAction("bootSecondActivity") { sender, result, data, savedFlowState ->
-            assertEquals(Activity.RESULT_OK, result)
+        workflowRegistry.activityResultAction("bootSecondActivity") { sender, result, savedFlowState ->
+            val data = result.data
+            assertEquals(Activity.RESULT_OK, result.result)
             assertNotNull(data)
             assertEquals("value", data?.getStringExtra("key"))
             assertEquals("savedValue", savedFlowState?.get("savedKey"))
@@ -171,8 +174,10 @@ internal object SendActivityBootFlowByFragment {
         }
 
     private val bootSecondActivityWithoutState =
-        workflowRegistry.activityResultAction("bootSecondActivityWithoutState") { sender, result, data, savedFlowState ->
-            assertEquals(Activity.RESULT_OK, result)
+        workflowRegistry.activityResultAction("bootSecondActivityWithoutState") { sender, result, savedFlowState ->
+            val data = result.data
+
+            assertEquals(Activity.RESULT_OK, result.result)
             assertNotNull(data)
             assertEquals("value", data?.getStringExtra("key"))
             assertNull(savedFlowState)
