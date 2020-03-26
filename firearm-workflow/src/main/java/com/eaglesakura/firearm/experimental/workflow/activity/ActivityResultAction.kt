@@ -30,7 +30,7 @@ class ActivityResultAction<T : Any> internal constructor(
     private val registry: WorkflowRegistry<T>,
     private val id: String,
     private val requestCode: Int,
-    private val onActivityResultHandler: (sender: T, result: Int, data: Intent?, savedFlowState: Bundle?) -> Unit
+    private val onActivityResultHandler: (sender: T, result: ActivityResult, savedFlowState: Bundle?) -> Unit
 ) {
 
     /**
@@ -63,7 +63,11 @@ class ActivityResultAction<T : Any> internal constructor(
         val holder = registry.getStateHolder(sender)
         val extra = registry.getExtra(holder, id)
         try {
-            onActivityResultHandler(sender, result, data, extra?.getBundle(EXTRA_STATE))
+            onActivityResultHandler(
+                sender,
+                ActivityResult(result, data),
+                extra?.getBundle(EXTRA_STATE)
+            )
         } finally {
             registry.removeExtra(holder, id)
         }

@@ -10,7 +10,7 @@ class RuntimePermissionAction<T : Any> internal constructor(
     private val registry: WorkflowRegistry<T>,
     private val id: String,
     private val requestCode: Int,
-    private val onRequestPermissionsResultHandler: (sender: T, permissions: List<String>, grantResults: List<Int>, savedFlowState: Bundle?) -> Unit
+    private val onRequestPermissionsResultHandler: (sender: T, result: RuntimePermissionResult, savedFlowState: Bundle?) -> Unit
 ) {
 
     /**
@@ -43,8 +43,10 @@ class RuntimePermissionAction<T : Any> internal constructor(
         try {
             onRequestPermissionsResultHandler(
                 sender,
-                permissions,
-                grantResults,
+                RuntimePermissionResult(
+                    permissions = permissions,
+                    granted = grantResults
+                ),
                 extra?.getBundle(EXTRA_STATE)
             )
         } finally {

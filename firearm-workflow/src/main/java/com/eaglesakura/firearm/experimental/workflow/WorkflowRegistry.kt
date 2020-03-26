@@ -2,12 +2,14 @@ package com.eaglesakura.firearm.experimental.workflow
 
 import android.content.Intent
 import android.os.Bundle
+import com.eaglesakura.firearm.experimental.workflow.activity.ActivityResult
 import com.eaglesakura.firearm.experimental.workflow.activity.ActivityResultAction
 import com.eaglesakura.firearm.experimental.workflow.dialog.DialogAction
 import com.eaglesakura.firearm.experimental.workflow.dialog.DialogResult
 import com.eaglesakura.firearm.experimental.workflow.internal.WorkflowDialogFragment
 import com.eaglesakura.firearm.experimental.workflow.internal.WorkflowProviderFragment
 import com.eaglesakura.firearm.experimental.workflow.permission.RuntimePermissionAction
+import com.eaglesakura.firearm.experimental.workflow.permission.RuntimePermissionResult
 import kotlin.reflect.KClass
 
 /**
@@ -120,7 +122,7 @@ class WorkflowRegistry<T : Any>(
      */
     fun activityResultAction(
         id: String,
-        onActivityResultHandler: (sender: T, result: Int, data: Intent?, savedFlowState: Bundle?) -> Unit
+        onActivityResultHandler: (sender: T, result: ActivityResult, savedFlowState: Bundle?) -> Unit
     ): ActivityResultAction<T> {
         val requestCode = makeRequestCode(id)
         val result = ActivityResultAction(
@@ -145,7 +147,7 @@ class WorkflowRegistry<T : Any>(
      */
     fun requestPermissionsAction(
         id: String,
-        onRequestPermissionsResultHandler: (sender: T, permissions: List<String>, grantResults: List<Int>, savedFlowState: Bundle?) -> Unit
+        onRequestPermissionsResultHandler: (sender: T, result: RuntimePermissionResult, savedFlowState: Bundle?) -> Unit
     ): RuntimePermissionAction<T> {
         val requestCode = makeRequestCode(id)
         val result = RuntimePermissionAction(

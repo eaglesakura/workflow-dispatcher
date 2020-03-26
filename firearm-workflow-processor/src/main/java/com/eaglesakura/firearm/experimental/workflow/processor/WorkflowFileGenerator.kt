@@ -12,6 +12,8 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asTypeName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.ExecutableElement
@@ -137,7 +139,11 @@ class WorkflowFileGenerator(
             workflowOwner.poetClassName.packageName,
             fileName
         ).openWriter().use { writer ->
-            writer.write(fileSpec.build().toString())
+            writer.write(fileSpec.build().toString().let {
+                var result = it
+                result = result.replace("import java.lang.String", "")
+                result
+            })
         }
     }
 
@@ -159,56 +165,162 @@ class WorkflowFileGenerator(
     }
 
     /**
+     * @param flowResultMethod Flow result method
+     * @param entryPointClass Entry-Point type, e.g.) [CLASS_DIALOG_ACTION, CLASS_ACTIVITY_RESULT_ACTION, CLASS_RUNTIME_PERMISSION_ACTION]
+     * @param propertyGeneratorName Entry-Point generator, e.g.["dialogAction", "activityResultAction", "runtimePermissionAction"]
+     * @param defaultResultArguments Flow result default arguments, e.g.) ["result", "data"]
+     */
+    private fun generateEntryPointProperty(
+        flowResultMethod: ExecutableElement,
+        entryPointClass: TypeName,
+        propertyGeneratorName: String,
+        defaultResultArguments: List<ParameterSpec>
+    ): PropertySpec {
+        // Generate Entry-Point Variable.
+        val entryPointName = "${propertyGeneratorName}_${flowResultMethod.methodName}"
+        val savedFlowParameters =
+            parseSavedFlowStateArguments(flowResultMethod, defaultResultArguments)
+
+        return PropertySpec.builder(
+            entryPointName,
+            entryPointClass
+        ).initializer(buildString {
+            append("${propertyWorkflowRegistry.name}.$propertyGeneratorName(\"$entryPointName\") { sender")
+            defaultResultArguments.forEach { arg ->
+                append(", ${arg.name}")
+            }
+            append(", savedFlowState ->")
+            append("\n")
+
+            append("sender.${flowResultMethod.methodName}(")
+            defaultResultArguments.forEachIndexed { index, arg ->
+                if (index > 0) {
+                    append(", ")
+                }
+                append(arg.name)
+            }
+
+            savedFlowParameters.forEach { arg ->
+                append(", com.eaglesakura.firearm.experimental.workflow.internal.parseSavedStateBundle(")
+                append("savedFlowState")
+                append(", \"${arg.name}\"")
+                append(", ${arg.type.isNullable}")
+                append(")")
+            }
+
+            append(")")
+
+            append("\n}")
+        })
+            .addModifiers(KModifier.PRIVATE)
+            .build()
+    }
+
+    /**
+     * @param flowResultMethod Flow result method
+     * @param entryPointName Entry-Point name, value from [@OnDialogResultFlow.entryPointName, @OnActivityResultFlow.entryPointName...]
+     * @param propertyGeneratorName Entry-Point generator, e.g.["dialogAction", "activityResultAction", "runtimePermissionAction"]
+     * @param defaultResultArguments Flow result default arguments, e.g.) ["result", "data"]
+     */
+    private fun generateEntryPointFunction(
+        flowResultMethod: ExecutableElement,
+        entryPointName: String,
+        entryPointArguments: List<ParameterSpec>,
+        entryPointImpl: PropertySpec,
+        resultCallbackArguments: List<ParameterSpec>
+    ): FunSpec {
+        val flowStateArguments =
+            parseSavedFlowStateArguments(flowResultMethod, resultCallbackArguments)
+
+        // Generate Entry-Point function.
+        return FunSpec.builder(entryPointName).apply {
+            addModifiers(KModifier.INTERNAL)
+            receiver(workflowOwner.poetClassName)
+            addStatement("validateFlow()")
+
+            val body = StringBuilder()
+            body.append("${entryPointImpl.name}(this")
+
+            entryPointArguments.forEach { arg ->
+                addParameter(arg)
+                body.append(", ${arg.name}")
+            }
+
+            if (flowStateArguments.isNotEmpty()) {
+                body.append(", androidx.core.os.bundleOf(")
+                flowStateArguments.forEachIndexed { index, arg ->
+                    addParameter(arg)
+                    if (index > 0) {
+                        body.append(", ")
+                    }
+                    body.append("\"${arg.name}\" to ${arg.name}")
+                }
+                body.append(")")
+            }
+            body.append(")")
+            addStatement(body.toString())
+            returns(Unit::class.java)
+        }.build()
+    }
+
+    private fun parseSavedFlowStateArguments(
+        flowResultMethod: ExecutableElement,
+        requireArguments: List<ParameterSpec>
+    ): List<ParameterSpec> {
+        val callbackParams = flowResultMethod.parameters
+        val flowStateArguments: List<VariableElement> =
+            if (callbackParams.size > requireArguments.size) {
+                callbackParams.subList(requireArguments.size, callbackParams.size).also {
+                    println("callback[$callbackParams], required[$requireArguments], state[$it]")
+                    check(it.isNotEmpty())
+                }
+            } else {
+                emptyList()
+            }
+
+        return mutableListOf<ParameterSpec>().also { result ->
+            flowStateArguments.forEach { arg ->
+                val nullable =
+                    arg.getAnnotation(org.jetbrains.annotations.Nullable::class.java) != null
+                val typeName = arg.asType().asTypeName().copy(nullable = nullable)
+                println("${flowResultMethod.methodName} : ${arg.simpleName}")
+                result.add(ParameterSpec.builder(arg.simpleName.toString(), typeName).build())
+            }
+        }
+    }
+
+    /**
      * Generate DialogFlowAction function.
      */
     private fun generateExtension(
         member: ExecutableElement,
         flowAnnotation: OnDialogResultFlow
     ) {
-        val requireArguments = 1
-        val flowStateArguments: List<VariableElement> =
-            if (member.parameters.size > requireArguments) {
-                member.parameters.subList(0, member.parameters.lastIndex)
-            } else {
-                emptyList()
-            }
+        val entryPointArguments: List<ParameterSpec> = mutableListOf(
+            ParameterSpec.builder("factory", CLASS_PARCELABLE_DIALOG_FACTORY).build()
+        )
+        val resultCallbackArguments: List<ParameterSpec> = listOf(
+            ParameterSpec.builder("result", CLASS_DIALOG_RESULT).build()
+        )
 
-        // Generate Entry-Point Variable.
-        val entryPointName = "${member.methodName}DialogEntry"
-        val workflowEntry = PropertySpec.builder(
-            entryPointName,
-            CLASS_DIALOG_ACTION
-        ).initializer(
-            buildString {
-                append("""${propertyWorkflowRegistry.name}.dialogAction("$entryPointName") { sender, result, savedFlowState ->""")
-                append("\n")
-                if (flowStateArguments.isEmpty()) {
-                    append("sender.${member.methodName}(result)")
-                } else {
-                    append("sender.${member.methodName}(result, savedFlowState)")
-                }
-                append("\n")
-                append("}")
-            }
-        ).addModifiers(KModifier.PRIVATE).build()
+        // Generate Entry-Point impl
+        val entryPointImpl = generateEntryPointProperty(
+            member,
+            CLASS_DIALOG_ACTION,
+            "dialogAction",
+            resultCallbackArguments
+        )
 
         // Generate Entry-Point function.
-        val extensionFunc = FunSpec.builder(flowAnnotation.entryPointName).apply {
-            addModifiers(KModifier.INTERNAL)
-            receiver(workflowOwner.poetClassName)
-            addStatement("validateFlow()")
+        val extensionFunc = generateEntryPointFunction(
+            member,
+            flowAnnotation.entryPointName,
+            entryPointArguments,
+            entryPointImpl,
+            resultCallbackArguments
+        )
 
-            addParameter("factory", CLASS_PARCELABLE_DIALOG_FACTORY)
-            if (flowStateArguments.isEmpty()) {
-                addStatement("${workflowEntry.name}(this, factory)")
-            } else {
-                addParameter("flowState", CLASS_BUNDLE)
-                addStatement("${workflowEntry.name}(this, factory, flowState)")
-            }
-            returns(Unit::class.java)
-        }.build()
-
-        fileSpec.addProperty(workflowEntry)
+        fileSpec.addProperty(entryPointImpl)
         fileSpec.addFunction(extensionFunc)
     }
 
@@ -219,55 +331,34 @@ class WorkflowFileGenerator(
         member: ExecutableElement,
         flowAnnotation: OnActivityResultFlow
     ) {
-        val requireArguments = 2
-        val flowStateArguments: List<VariableElement> =
-            if (member.parameters.size > requireArguments) {
-                member.parameters.subList(0, member.parameters.lastIndex)
-            } else {
-                emptyList()
-            }
+        val entryPointArguments: List<ParameterSpec> = mutableListOf(
+            ParameterSpec.builder("intent", CLASS_INTENT).build(),
+            ParameterSpec.builder("options", CLASS_BUNDLE.copy(nullable = true))
+                .defaultValue("null")
+                .build()
+        )
+        val resultCallbackArguments: List<ParameterSpec> = listOf(
+            ParameterSpec.builder("result", CLASS_ACTIVITY_RESULT).build()
+        )
 
-        // Generate Entry-Point Variable.
-        val entryPointName = "${member.methodName}ActivityResultEntry"
-        val workflowEntry = PropertySpec.builder(
-            entryPointName,
-            CLASS_ACTIVITY_RESULT_ACTION
-        ).initializer(
-            buildString {
-                append("""${propertyWorkflowRegistry.name}.activityResultAction("$entryPointName") { sender, result, data, savedFlowState ->""")
-                append("\n")
-                if (flowStateArguments.isEmpty()) {
-                    append("sender.${member.methodName}(result, data)")
-                } else {
-                    append("sender.${member.methodName}(result, data, savedFlowState)")
-                }
-                append("\n")
-                append("}")
-            }
-        ).addModifiers(KModifier.PRIVATE).build()
+        // Generate Entry-Point impl
+        val entryPointImpl = generateEntryPointProperty(
+            member,
+            CLASS_ACTIVITY_RESULT_ACTION,
+            "activityResultAction",
+            resultCallbackArguments
+        )
 
         // Generate Entry-Point function.
-        val extensionFunc = FunSpec.builder(flowAnnotation.entryPointName).apply {
-            addModifiers(KModifier.INTERNAL)
-            receiver(workflowOwner.poetClassName)
-            addStatement("validateFlow()")
+        val extensionFunc = generateEntryPointFunction(
+            member,
+            flowAnnotation.entryPointName,
+            entryPointArguments,
+            entryPointImpl,
+            resultCallbackArguments
+        )
 
-            addParameter("intent", CLASS_INTENT)
-            addParameter(
-                ParameterSpec.builder("options", CLASS_BUNDLE.copy(nullable = true))
-                    .defaultValue("null")
-                    .build()
-            )
-            if (flowStateArguments.isEmpty()) {
-                addStatement("${workflowEntry.name}(this, intent, options)")
-            } else {
-                addParameter("flowState", CLASS_BUNDLE)
-                addStatement("${workflowEntry.name}(this, intent, options, flowState)")
-            }
-            returns(Unit::class.java)
-        }.build()
-
-        fileSpec.addProperty(workflowEntry)
+        fileSpec.addProperty(entryPointImpl)
         fileSpec.addFunction(extensionFunc)
     }
 
@@ -278,62 +369,42 @@ class WorkflowFileGenerator(
         member: ExecutableElement,
         flowAnnotation: OnRuntimePermissionResultFlow
     ) {
-        val requireArguments = 1
-        val flowStateArguments: List<VariableElement> =
-            if (member.parameters.size > requireArguments) {
-                member.parameters.subList(0, member.parameters.lastIndex)
-            } else {
-                emptyList()
-            }
+        val entryPointArguments: List<ParameterSpec> = mutableListOf(
+            ParameterSpec.builder("permissions", CLASS_STRING_LIST)
+                .defaultValue(buildString {
+                    append("listOf(")
+                    flowAnnotation.permissions.forEachIndexed { index, permission ->
+                        if (index > 0) {
+                            append(", ")
+                        }
+                        append("\"$permission\"")
+                    }
+                    append(")")
+                })
+                .build()
+        )
+        val resultCallbackArguments: List<ParameterSpec> = listOf(
+            ParameterSpec.builder("result", CLASS_RUNTIME_PERMISSION_RESULT).build()
+        )
 
-        // Generate Entry-Point Variable.
-        val entryPointName = "${member.methodName}RuntimePermissionEntry"
-        val workflowEntry = PropertySpec.builder(
-            entryPointName,
-            CLASS_RUNTIME_PERMISSION_ACTION
-        ).initializer(
-            buildString {
-                append("""${propertyWorkflowRegistry.name}.requestPermissionsAction("$entryPointName") { sender, _, grantResults, savedFlowState ->""")
-                append("\n")
-                if (flowStateArguments.isEmpty()) {
-                    append("sender.${member.methodName}(grantResults)")
-                } else {
-                    append("sender.${member.methodName}(grantResults, savedFlowState)")
-                }
-                append("\n")
-                append("}")
-            }
-        ).addModifiers(KModifier.PRIVATE).build()
+        // Generate Entry-Point impl
+        val entryPointImpl = generateEntryPointProperty(
+            member,
+            CLASS_RUNTIME_PERMISSION_ACTION,
+            "requestPermissionsAction",
+            resultCallbackArguments
+        )
 
         // Generate Entry-Point function.
-        val extensionFunc = FunSpec.builder(flowAnnotation.entryPointName).apply {
-            addModifiers(KModifier.INTERNAL)
-            receiver(workflowOwner.poetClassName)
-            addStatement("validateFlow()")
-            addParameter(
-                ParameterSpec.builder("permissions", CLASS_STRING_LIST)
-                    .defaultValue(buildString {
-                        append("listOf(")
-                        flowAnnotation.permissions.forEachIndexed { index, permission ->
-                            if (index > 0) {
-                                append(",")
-                            }
-                            append("\"$permission\"")
-                        }
-                        append(")")
-                    })
-                    .build()
-            )
-            if (flowStateArguments.isEmpty()) {
-                addStatement("${workflowEntry.name}(this, permissions.toList())")
-            } else {
-                addParameter("flowState", CLASS_BUNDLE)
-                addStatement("${workflowEntry.name}(this, permissions.toList(), flowState)")
-            }
-            returns(Unit::class.java)
-        }.build()
+        val extensionFunc = generateEntryPointFunction(
+            member,
+            flowAnnotation.entryPointName,
+            entryPointArguments,
+            entryPointImpl,
+            resultCallbackArguments
+        )
 
-        fileSpec.addProperty(workflowEntry)
+        fileSpec.addProperty(entryPointImpl)
         fileSpec.addFunction(extensionFunc)
     }
 
@@ -342,6 +413,24 @@ class WorkflowFileGenerator(
             ClassName(
                 "com.eaglesakura.firearm.experimental.workflow.dialog",
                 "ParcelableDialogFactory"
+            )
+
+        private val CLASS_DIALOG_RESULT =
+            ClassName(
+                "com.eaglesakura.firearm.experimental.workflow.dialog",
+                "DialogResult"
+            )
+
+        private val CLASS_ACTIVITY_RESULT =
+            ClassName(
+                "com.eaglesakura.firearm.experimental.workflow.activity",
+                "ActivityResult"
+            )
+
+        private val CLASS_RUNTIME_PERMISSION_RESULT =
+            ClassName(
+                "com.eaglesakura.firearm.experimental.workflow.permission",
+                "RuntimePermissionResult"
             )
 
         private val CLASS_BUNDLE =
