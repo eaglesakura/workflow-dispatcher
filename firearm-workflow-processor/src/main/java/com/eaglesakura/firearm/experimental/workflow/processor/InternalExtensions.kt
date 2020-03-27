@@ -7,7 +7,7 @@ import javax.lang.model.element.TypeElement
 /**
  *  Returns ClassName for kotlinpoet.
  */
-val TypeElement.poetClassName: ClassName
+internal val TypeElement.poetClassName: ClassName
     get() {
         val packageName = qualifiedName.substring(0, qualifiedName.lastIndexOf("."))
         val className = simpleName.toString()
@@ -17,7 +17,7 @@ val TypeElement.poetClassName: ClassName
 /**
  * Returns method name from Element.
  */
-val ExecutableElement.methodName: String
+internal val ExecutableElement.methodName: String
     get() {
         val index = simpleName.toString().lastIndexOf("$")
         return if (index < 0) {

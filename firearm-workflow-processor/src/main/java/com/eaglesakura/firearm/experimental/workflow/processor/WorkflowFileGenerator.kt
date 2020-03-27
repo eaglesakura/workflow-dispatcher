@@ -22,12 +22,12 @@ import javax.lang.model.element.VariableElement
 import javax.lang.model.util.Elements
 import javax.tools.StandardLocation
 
-class WorkflowFileGenerator(
-        private val processor: WorkflowProcessor,
-        private val elementUtils: Elements,
-        private val processingEnv: ProcessingEnvironment,
-        private val roundEnv: RoundEnvironment,
-        private val workflowOwner: TypeElement
+internal class WorkflowFileGenerator(
+    private val processor: WorkflowProcessor,
+    private val elementUtils: Elements,
+    private val processingEnv: ProcessingEnvironment,
+    private val roundEnv: RoundEnvironment,
+    private val workflowOwner: TypeElement
 ) {
     @Suppress("PrivatePropertyName")
     private val CLASS_WORKFLOW_OWNER: ClassName = workflowOwner.poetClassName
@@ -111,6 +111,7 @@ class WorkflowFileGenerator(
                 FunSpec.builder("loadWorkflowModules")
                         .addModifiers(KModifier.INTERNAL)
                         .receiver(workflowOwner.poetClassName)
+                        .addStatement("$BASE_PACKAGE_NAME.internal.supportWorkflowOwner(this /* Type Validation */ )")
                         .addStatement("initialized = true")
                         .build()
         )
@@ -153,10 +154,10 @@ class WorkflowFileGenerator(
      * @param defaultResultArguments Flow result default arguments, e.g.) ["result", "data"]
      */
     private fun generateEntryPointProperty(
-            flowResultMethod: ExecutableElement,
-            entryPointClass: TypeName,
-            propertyGeneratorName: String,
-            defaultResultArguments: List<ParameterSpec>
+        flowResultMethod: ExecutableElement,
+        entryPointClass: TypeName,
+        propertyGeneratorName: String,
+        defaultResultArguments: List<ParameterSpec>
     ): PropertySpec {
         // Generate Entry-Point Variable.
         val entryPointName = "${propertyGeneratorName}_${flowResultMethod.methodName}"
@@ -205,11 +206,11 @@ class WorkflowFileGenerator(
      * @param resultCallbackArguments Flow result default arguments, e.g.) ["result: ActivityResult"]
      */
     private fun generateEntryPointFunction(
-            flowResultMethod: ExecutableElement,
-            entryPointName: String,
-            entryPointArguments: List<ParameterSpec>,
-            entryPointImpl: PropertySpec,
-            resultCallbackArguments: List<ParameterSpec>
+        flowResultMethod: ExecutableElement,
+        entryPointName: String,
+        entryPointArguments: List<ParameterSpec>,
+        entryPointImpl: PropertySpec,
+        resultCallbackArguments: List<ParameterSpec>
     ): FunSpec {
         val flowStateArguments =
                 parseSavedFlowStateArguments(flowResultMethod, resultCallbackArguments)
@@ -246,8 +247,8 @@ class WorkflowFileGenerator(
     }
 
     private fun parseSavedFlowStateArguments(
-            flowResultMethod: ExecutableElement,
-            requireArguments: List<ParameterSpec>
+        flowResultMethod: ExecutableElement,
+        requireArguments: List<ParameterSpec>
     ): List<ParameterSpec> {
         val callbackParams = flowResultMethod.parameters
         val flowStateArguments: List<VariableElement> =
@@ -275,8 +276,8 @@ class WorkflowFileGenerator(
      * Generate DialogFlowAction function.
      */
     private fun generateExtension(
-            member: ExecutableElement,
-            flowAnnotation: OnDialogResultFlow
+        member: ExecutableElement,
+        flowAnnotation: OnDialogResultFlow
     ) {
         val entryPointArguments: List<ParameterSpec> = mutableListOf(
                 ParameterSpec.builder("factory", CLASS_PARCELABLE_DIALOG_FACTORY).build()
@@ -310,8 +311,8 @@ class WorkflowFileGenerator(
      * Generate ActivityResultAction function.
      */
     private fun generateExtension(
-            member: ExecutableElement,
-            flowAnnotation: OnActivityResultFlow
+        member: ExecutableElement,
+        flowAnnotation: OnActivityResultFlow
     ) {
         val entryPointArguments: List<ParameterSpec> = mutableListOf(
                 ParameterSpec.builder("intent", CLASS_INTENT).build(),
@@ -348,8 +349,8 @@ class WorkflowFileGenerator(
      * Generate ActivityResultAction function.
      */
     private fun generateExtension(
-            member: ExecutableElement,
-            flowAnnotation: OnRuntimePermissionResultFlow
+        member: ExecutableElement,
+        flowAnnotation: OnRuntimePermissionResultFlow
     ) {
         val entryPointArguments: List<ParameterSpec> = mutableListOf(
                 ParameterSpec.builder("permissions", CLASS_STRING_LIST)

@@ -12,7 +12,7 @@ import javax.lang.model.element.TypeElement
 /**
  * Kotlin Annotation Processor
  */
-class WorkflowProcessor : AbstractProcessor() {
+internal class WorkflowProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
         val buildTargets = listOf(
