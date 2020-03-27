@@ -10,6 +10,7 @@ import androidx.test.rule.GrantPermissionRule
 import com.eaglesakura.armyknife.android.junit4.extensions.instrumentationBlockingTest
 import com.eaglesakura.armyknife.android.junit4.extensions.makeActivity
 import com.eaglesakura.armyknife.android.junit4.extensions.makeFragment
+import com.eaglesakura.workflowdispatcher.WorkflowRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

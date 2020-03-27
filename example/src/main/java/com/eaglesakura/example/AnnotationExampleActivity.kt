@@ -5,13 +5,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.eaglesakura.firearm.experimental.workflow.activity.ActivityResult
-import com.eaglesakura.firearm.experimental.workflow.annotations.OnActivityResultFlow
-import com.eaglesakura.firearm.experimental.workflow.annotations.OnDialogResultFlow
-import com.eaglesakura.firearm.experimental.workflow.annotations.OnRuntimePermissionResultFlow
-import com.eaglesakura.firearm.experimental.workflow.dialog.AlertDialogFactory
-import com.eaglesakura.firearm.experimental.workflow.dialog.DialogResult
-import com.eaglesakura.firearm.experimental.workflow.permission.RuntimePermissionResult
+import com.eaglesakura.workflowdispatcher.activity.ActivityResult
+import com.eaglesakura.workflowdispatcher.OnActivityResultFlow
+import com.eaglesakura.workflowdispatcher.OnDialogResultFlow
+import com.eaglesakura.workflowdispatcher.OnRuntimePermissionResultFlow
+import com.eaglesakura.workflowdispatcher.dialog.AlertDialogFactory
+import com.eaglesakura.workflowdispatcher.dialog.DialogResult
+import com.eaglesakura.workflowdispatcher.permission.RuntimePermissionResult
 import java.util.Date
 
 class AnnotationExampleActivity : AppCompatActivity() {

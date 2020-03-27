@@ -11,8 +11,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eaglesakura.armyknife.android.junit4.extensions.instrumentationBlockingTest
 import com.eaglesakura.armyknife.android.junit4.extensions.makeActivity
 import com.eaglesakura.armyknife.android.junit4.extensions.makeFragment
-import com.eaglesakura.firearm.experimental.workflow.dialog.AlertDialogFactory
-import com.eaglesakura.firearm.experimental.workflow.dialog.DialogResult
+import com.eaglesakura.workflowdispatcher.dialog.AlertDialogFactory
+import com.eaglesakura.workflowdispatcher.dialog.DialogResult
+import com.eaglesakura.workflowdispatcher.WorkflowRegistry
+import com.eaglesakura.workflowdispatcher.workflowRequiredModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -93,7 +95,10 @@ class WorkflowRegistryDialogTest {
 
 internal class WorkflowRegistryFragment : Fragment() {
     init {
-        workflowRequiredModule(TestingWithStateFlow, TestingDialogWorkflow)
+        workflowRequiredModule(
+            TestingWithStateFlow,
+            TestingDialogWorkflow
+        )
     }
 }
 

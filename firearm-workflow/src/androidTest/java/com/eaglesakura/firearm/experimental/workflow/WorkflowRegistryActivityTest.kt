@@ -11,6 +11,8 @@ import com.eaglesakura.armyknife.android.extensions.UIHandler
 import com.eaglesakura.armyknife.android.junit4.extensions.compatibleBlockingTest
 import com.eaglesakura.armyknife.android.junit4.extensions.makeActivity
 import com.eaglesakura.armyknife.android.junit4.extensions.makeFragment
+import com.eaglesakura.workflowdispatcher.WorkflowRegistry
+import com.eaglesakura.workflowdispatcher.workflowRequiredModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -137,7 +139,9 @@ internal object SendActivityBootFlow {
 
 internal class FirstFragment : Fragment() {
     init {
-        workflowRequiredModule(SendActivityBootFlowByFragment)
+        workflowRequiredModule(
+            SendActivityBootFlowByFragment
+        )
     }
 }
 

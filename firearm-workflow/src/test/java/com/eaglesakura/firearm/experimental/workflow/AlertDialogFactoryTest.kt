@@ -1,7 +1,7 @@
 package com.eaglesakura.firearm.experimental.workflow
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.eaglesakura.firearm.experimental.workflow.dialog.AlertDialogFactory
+import com.eaglesakura.workflowdispatcher.dialog.AlertDialogFactory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
