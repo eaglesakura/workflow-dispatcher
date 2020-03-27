@@ -14,7 +14,6 @@ import com.eaglesakura.firearm.experimental.workflow.dialog.AlertDialogFactory
 import com.eaglesakura.firearm.experimental.workflow.dialog.DialogResult
 import com.eaglesakura.firearm.experimental.workflow.permission.RuntimePermissionResult
 
-@WorkflowOwner
 class MainActivity : AppCompatActivity() {
 
     init {
@@ -58,8 +57,8 @@ class MainActivity : AppCompatActivity() {
      * Done runtime permission result.
      */
     @OnRuntimePermissionResultFlow(
-        "runtimePermissionFlow",
-        [android.Manifest.permission.WRITE_EXTERNAL_STORAGE]
+            "runtimePermissionFlow",
+            [android.Manifest.permission.WRITE_EXTERNAL_STORAGE]
     )
     internal fun onRuntimePermissionResult(result: RuntimePermissionResult) {
         if (!result.allGranted) {
@@ -74,12 +73,12 @@ class MainActivity : AppCompatActivity() {
      * Done runtime permission result.
      */
     @OnRuntimePermissionResultFlow(
-        "runtimePermissionWithStateFlow",
-        [android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE]
+            "runtimePermissionWithStateFlow",
+            [android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE]
     )
     internal fun onRuntimePermissionWithStateResult(
-        result: RuntimePermissionResult,
-        url: String
+            result: RuntimePermissionResult,
+            url: String
     ) {
         if (!result.allGranted) {
             finish()
@@ -99,7 +98,7 @@ class MainActivity : AppCompatActivity() {
 
     @OnActivityResultFlow("activityResultFlowWithState")
     internal fun onActivityResultWithStateFlowResult(
-        result: ActivityResult, url: String
+            result: ActivityResult, url: String
     ) {
         Toast.makeText(this, "state='$url'", Toast.LENGTH_LONG).show()
     }
