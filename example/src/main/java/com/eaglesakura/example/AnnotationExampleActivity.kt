@@ -15,11 +15,6 @@ import com.eaglesakura.firearm.experimental.workflow.permission.RuntimePermissio
 import java.util.Date
 
 class AnnotationExampleActivity : AppCompatActivity() {
-
-    init {
-        loadWorkflowModules()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
