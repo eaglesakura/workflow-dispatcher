@@ -4,7 +4,6 @@ package com.eaglesakura.firearm.experimental.workflow.annotations
  *  Annotation to startActivityForResult:onActivityResult flow.
  *
  *  e.g.)
- *  @ WorkflowOwner
  *  class ExampleFlow {
  *      fun startFlow() {
  *          val dialogFactory = AlertDialogFactory.Builder() {

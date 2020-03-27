@@ -3,7 +3,6 @@ package com.eaglesakura.firearm.experimental.workflow.processor
 import com.eaglesakura.firearm.experimental.workflow.annotations.OnActivityResultFlow
 import com.eaglesakura.firearm.experimental.workflow.annotations.OnDialogResultFlow
 import com.eaglesakura.firearm.experimental.workflow.annotations.OnRuntimePermissionResultFlow
-import com.eaglesakura.firearm.experimental.workflow.annotations.WorkflowOwner
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
@@ -16,7 +15,6 @@ import javax.lang.model.element.TypeElement
 class WorkflowProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-
         val buildTargets = listOf(
                 roundEnv.getElementsAnnotatedWith(OnDialogResultFlow::class.java)
                         .map { (it as ExecutableElement).enclosingElement as TypeElement },
@@ -43,7 +41,6 @@ class WorkflowProcessor : AbstractProcessor() {
 
     override fun getSupportedAnnotationTypes(): Set<String> {
         return listOf(
-                WorkflowOwner::class,
                 OnActivityResultFlow::class,
                 OnDialogResultFlow::class,
                 OnRuntimePermissionResultFlow::class
