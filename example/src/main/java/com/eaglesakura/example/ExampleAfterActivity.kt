@@ -15,11 +15,6 @@ import com.eaglesakura.firearm.experimental.workflow.permission.RuntimePermissio
 import java.util.Date
 
 class ExampleAfterActivity : AppCompatActivity() {
-
-    init {
-        loadWorkflowModules()
-    }
-
     /**
      * Workflow Step 1, Show Dialog.
      */
