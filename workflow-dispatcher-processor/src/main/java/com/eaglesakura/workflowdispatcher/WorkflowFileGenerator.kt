@@ -219,7 +219,7 @@ internal class WorkflowFileGenerator(
         val flowStateArguments: List<VariableElement> =
             if (callbackParams.size > requireArguments.size) {
                 callbackParams.subList(requireArguments.size, callbackParams.size).also {
-                    println("callback[$callbackParams], required[$requireArguments], state[$it]")
+//                    println("callback[$callbackParams], required[$requireArguments], state[$it]")
                     check(it.isNotEmpty())
                 }
             } else {
@@ -231,7 +231,6 @@ internal class WorkflowFileGenerator(
                 val nullable =
                     arg.getAnnotation(org.jetbrains.annotations.Nullable::class.java) != null
                 val typeName = arg.asType().asTypeName().copy(nullable = nullable)
-                println("${flowResultMethod.methodName} : ${arg.simpleName}")
                 result.add(ParameterSpec.builder(arg.simpleName.toString(), typeName).build())
             }
         }
