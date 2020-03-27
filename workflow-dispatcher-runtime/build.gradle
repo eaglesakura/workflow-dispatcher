@@ -27,7 +27,7 @@ dependencies {
     /**
      * Libraries.
      */
-    api project(":firearm-workflow-annotations")
+    api project(":workflow-dispatcher-annotations")
     testImplementation("com.eaglesakura.armyknife.armyknife-runtime:armyknife-runtime:1.3.7")
     testImplementation("com.eaglesakura.armyknife.armyknife-jetpack:armyknife-jetpack:1.4.9")
     androidTestImplementation("com.eaglesakura.armyknife.armyknife-jetpack:armyknife-jetpack:1.4.9")

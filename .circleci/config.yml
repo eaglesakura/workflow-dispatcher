@@ -197,13 +197,13 @@ workflows:
       - android-test:
           name: test
           context: bintray-maven
-          module-path: firearm-workflow
+          module-path: workflow-dispatcher-runtime
           <<: *filter-for-assemble
           <<: *depends-from-tests
       - deploy-to-bintray-android:
           name: deploy-to-bintray
           context: bintray-maven
-          module-path: firearm-workflow
+          module-path: workflow-dispatcher-runtime
           <<: *filter-for-assemble
           <<: *depends-from-deploy
 # EOF

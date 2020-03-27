@@ -2,10 +2,10 @@ import java.nio.charset.Charset
 
 extra["base_version"] = "1.0"
 extra["artifact_name"] = project.name
-extra["artifact_group"] = "com.eaglesakura.workflow"
+extra["artifact_group"] = "com.eaglesakura.workflowdispatcher"
 extra["bintray_user"] = "eaglesakura"
 extra["bintray_labels"] = arrayOf("android", "kotlin")
-extra["bintray_vcs_url"] = "https://github.com/eaglesakura/${project.name}"
+extra["bintray_vcs_url"] = "https://github.com/eaglesakura/workflow-dispatcher"
 
 /**
  * Auto configure.

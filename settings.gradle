@@ -1,4 +1,4 @@
-include ":firearm-workflow-annotations"
-include ":firearm-workflow"
-include ":firearm-workflow-processor"
+include ":workflow-dispatcher-annotations"
+include ":workflow-dispatcher-processor"
+include ":workflow-dispatcher-runtime"
 include ':example'
