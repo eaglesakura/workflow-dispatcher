@@ -3,8 +3,8 @@ package com.eaglesakura.firearm.experimental.workflow.permission
 import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.core.os.bundleOf
-import com.eaglesakura.armyknife.android.extensions.assertUIThread
 import com.eaglesakura.firearm.experimental.workflow.WorkflowRegistry
+import com.eaglesakura.firearm.experimental.workflow.internal.armyknife_jetpack.assertUIThread
 
 class RuntimePermissionAction<T : Any> internal constructor(
     private val registry: WorkflowRegistry<T>,

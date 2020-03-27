@@ -3,9 +3,9 @@ package com.eaglesakura.firearm.experimental.workflow.dialog
 import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.core.os.bundleOf
-import com.eaglesakura.armyknife.android.extensions.assertUIThread
 import com.eaglesakura.firearm.experimental.workflow.WorkflowRegistry
 import com.eaglesakura.firearm.experimental.workflow.internal.WorkflowDialogFragment
+import com.eaglesakura.firearm.experimental.workflow.internal.armyknife_jetpack.assertUIThread
 
 /**
  * Show dialogAction flow.
