@@ -12,8 +12,9 @@ import com.eaglesakura.firearm.experimental.workflow.annotations.OnRuntimePermis
 import com.eaglesakura.firearm.experimental.workflow.dialog.AlertDialogFactory
 import com.eaglesakura.firearm.experimental.workflow.dialog.DialogResult
 import com.eaglesakura.firearm.experimental.workflow.permission.RuntimePermissionResult
+import java.util.Date
 
-class MainActivity : AppCompatActivity() {
+class AnnotationExampleActivity : AppCompatActivity() {
 
     init {
         loadWorkflowModules()
@@ -23,12 +24,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        showExampleDialogWithState(AlertDialogFactory.Builder().also { builder ->
-            builder.message = "Start Runtime-Permission!!"
-            builder.positiveButton = "Start"
-            builder.negativeButton = "Abort"
-        }.build(), "https://google.com")
-
+        if (savedInstanceState == null) {
+            val startDate = Date()
+            showExampleDialogWithState(AlertDialogFactory.Builder().also { builder ->
+                builder.message = "Start Runtime-Permission!!\nstartDate='$startDate'"
+                builder.positiveButton = "Start"
+                builder.negativeButton = "Abort"
+            }.build(), startDate, "https://google.com")
+        } else {
+            Toast.makeText(this, "ReBuild Activity", Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**
@@ -44,10 +49,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     @OnDialogResultFlow("showExampleDialogWithState")
-    internal fun onShowExampleDialogWithStateResult(result: DialogResult, url: String) {
+    internal fun onShowExampleDialogWithStateResult(
+        result: DialogResult,
+        startDate: Date,
+        url: String
+    ) {
         when (result.selected) {
             DialogResult.Selection.Positive -> {
-                runtimePermissionWithStateFlow(url = url)
+                runtimePermissionWithStateFlow(url = url, startDate = startDate)
             }
         }
     }
@@ -56,8 +65,8 @@ class MainActivity : AppCompatActivity() {
      * Done runtime permission result.
      */
     @OnRuntimePermissionResultFlow(
-            "runtimePermissionFlow",
-            [android.Manifest.permission.WRITE_EXTERNAL_STORAGE]
+        "runtimePermissionFlow",
+        [android.Manifest.permission.WRITE_EXTERNAL_STORAGE]
     )
     internal fun onRuntimePermissionResult(result: RuntimePermissionResult) {
         if (!result.allGranted) {
@@ -72,19 +81,23 @@ class MainActivity : AppCompatActivity() {
      * Done runtime permission result.
      */
     @OnRuntimePermissionResultFlow(
-            "runtimePermissionWithStateFlow",
-            [android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE]
+        "runtimePermissionWithStateFlow",
+        [android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE]
     )
     internal fun onRuntimePermissionWithStateResult(
-            result: RuntimePermissionResult,
-            url: String
+        result: RuntimePermissionResult,
+        startDate: Date,
+        url: String
     ) {
         if (!result.allGranted) {
             finish()
             return
         }
 
-        activityResultFlowWithState(Intent(Intent.ACTION_VIEW, Uri.parse(url)), url = url)
+        activityResultFlowWithState(
+            Intent(Intent.ACTION_VIEW, Uri.parse(url)),
+            startDate = startDate
+        )
     }
 
     /**
@@ -97,9 +110,9 @@ class MainActivity : AppCompatActivity() {
 
     @OnActivityResultFlow("activityResultFlowWithState")
     internal fun onActivityResultWithStateFlowResult(
-            result: ActivityResult, url: String
+        result: ActivityResult, startDate: Date
     ) {
-        Toast.makeText(this, "state='$url'", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "startDate='$startDate'", Toast.LENGTH_LONG).show()
     }
 
 }
