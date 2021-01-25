@@ -1,23 +1,12 @@
 package com.eaglesakura.workflowdispatcher.internal
 
-import android.os.Bundle
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
-
-fun <T : Any> parseSavedStateBundle(bundle: Bundle?, key: String, nullable: Boolean): T {
-    try {
-        return requireNotNull(bundle?.get(key) as? T?) {
-            "Invalid parseSavedStateBundle[\"$key\"]"
-        }
-    } catch (e: NullPointerException) {
-        if (nullable) {
-            return null as T
-        }
-        throw e
-    }
-}
+import java.util.concurrent.atomic.AtomicInteger
 
 object InternalWorkflowUtils {
     /**
@@ -39,15 +28,21 @@ object InternalWorkflowUtils {
         }
     }
 
+    fun show(self: Any, fragment: DialogFragment, tag: String) {
+        fragment.show(requireFragmentManager(self), "$tag#${commitNumber.incrementAndGet()}")
+    }
+
     fun add(self: Any, fragment: Fragment, tag: String) {
         requireFragmentManager(self).commitNow(allowStateLoss = true) {
-            add(fragment, tag)
+            add(fragment, "$tag#${commitNumber.incrementAndGet()}")
         }
     }
 
     fun remove(self: Fragment) {
-        self.parentFragmentManager.commitNow(allowStateLoss = true) {
+        self.parentFragmentManager.commit {
             remove(self)
         }
     }
+
+    private val commitNumber = AtomicInteger()
 }

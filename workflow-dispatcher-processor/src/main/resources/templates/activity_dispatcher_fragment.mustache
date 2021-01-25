@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "UNUSED_PARAMETER")
 package {{packageName}}
 
 import android.app.*
@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.eaglesakura.workflowdispatcher.internal.*
 import com.eaglesakura.workflowdispatcher.activity.*
 import androidx.core.os.bundleOf
+import android.util.Log
 
 internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
     intent: Intent,
@@ -25,7 +26,7 @@ internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
             "{{name}}" to {{name}},
         {{/savedStateList}}
     )
-    InternalWorkflowUtils.add(this, dispatcher, "{{className}}#${System.currentTimeMillis()}")
+    InternalWorkflowUtils.add(this, dispatcher, "{{className}}")
 
     dispatcher.startActivityForResult(
         intent,
@@ -56,7 +57,28 @@ internal class {{className}} : Fragment() {
         InternalWorkflowUtils.remove(this)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: $tag")
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.d(TAG, "onAttach: $tag")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Log.d(TAG, "onDetach: $tag")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy: $tag")
+    }
+
     companion object {
         internal const val REQUEST_CODE = 0x3103
+        private const val TAG = "{{className}}"
     }
 }

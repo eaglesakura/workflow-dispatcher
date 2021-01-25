@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "UNUSED_PARAMETER")
 package {{packageName}}
 
 import android.app.*
@@ -10,6 +10,7 @@ import androidx.fragment.app.DialogFragment
 import com.eaglesakura.workflowdispatcher.internal.*
 import com.eaglesakura.workflowdispatcher.dialog.*
 import androidx.core.os.bundleOf
+import android.util.Log
 
 internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
     factory: ParcelableDialogFactory,
@@ -24,10 +25,8 @@ internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
             "{{name}}" to {{name}},
         {{/savedStateList}}
     )
-    dispatcher.show(
-        InternalWorkflowUtils.requireFragmentManager(this),
-        "{{className}}#${System.currentTimeMillis()}"
-    )
+
+    InternalWorkflowUtils.show(this, dispatcher, "{{className}}")
 }
 
 internal class {{className}} : DialogFragment() {
@@ -68,7 +67,28 @@ internal class {{className}} : DialogFragment() {
         InternalWorkflowUtils.remove(this)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: $tag")
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.d(TAG, "onAttach: $tag")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Log.d(TAG, "onDetach: $tag")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy: $tag")
+    }
+
     companion object {
         internal const val ARGUMENT_DIALOG_FACTORY = ".ARGUMENT_DIALOG_FACTORY"
+        private const val TAG = "{{className}}"
     }
 }

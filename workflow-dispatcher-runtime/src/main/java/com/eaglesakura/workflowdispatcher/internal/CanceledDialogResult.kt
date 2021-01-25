@@ -1,7 +1,7 @@
 package com.eaglesakura.workflowdispatcher.internal
 
 import com.eaglesakura.workflowdispatcher.dialog.DialogResult
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * Dialog is cancel.
