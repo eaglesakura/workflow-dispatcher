@@ -1,5 +1,6 @@
 package com.eaglesakura.workflowdispatcher
 
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -92,12 +93,19 @@ internal class WorkflowFileGenerator(
             fileName
         ).openWriter().use { writer ->
             writer.write(
-                fileSpec.build().toString().let {
-                    var result = it
-                    result = result.replace("import java.lang.String", "")
-                    result = result.replace("import kotlin.String", "")
-                    result
-                }
+                fileSpec
+                    .addAnnotation(
+                        AnnotationSpec.builder(Suppress::class)
+                            .addMember("\"unused\"")
+                            .build()
+                    )
+                    .build()
+                    .toString().let {
+                        var result = it
+                        result = result.replace("import java.lang.String", "")
+                        result = result.replace("import kotlin.String", "")
+                        result
+                    }
             )
         }
     }
