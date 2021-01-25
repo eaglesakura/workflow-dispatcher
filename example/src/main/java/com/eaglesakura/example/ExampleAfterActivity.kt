@@ -37,6 +37,19 @@ class ExampleAfterActivity : AppCompatActivity() {
     /**
      * Workflow Step 2, on Dialog dismiss, Request runtime permission.
      */
+    @OnDialogResultFlow("showNullableStartDialog")
+    fun onNullableShowStartDialogResult(result: DialogResult, startDate: Date?) {
+        when (result.selected) {
+            DialogResult.Selection.Positive -> requestExamplePermissions(
+                startDate = startDate ?: Date()
+            )
+            else -> finish()
+        }
+    }
+
+    /**
+     * Workflow Step 2, on Dialog dismiss, Request runtime permission.
+     */
     @OnDialogResultFlow("showStartDialog")
     fun onShowStartDialogResult(result: DialogResult, startDate: Date) {
         when (result.selected) {

@@ -1,0 +1,62 @@
+@file:Suppress("unused")
+package {{packageName}}
+
+import android.app.*
+import android.content.*
+import android.os.*
+import android.content.*
+import androidx.fragment.app.*
+import androidx.fragment.app.Fragment
+import com.eaglesakura.workflowdispatcher.internal.*
+import com.eaglesakura.workflowdispatcher.permission.*
+import androidx.core.os.bundleOf
+
+internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
+    permissions: List<String> = listOf({{#permissions}}"{{.}}",{{/permissions}}),
+{{#savedStateList}}
+    {{name}}: {{typeName}}{{#nullable}}?{{/nullable}},
+{{/savedStateList}}
+) {
+    val dispatcher = {{className}}()
+    dispatcher.arguments = bundleOf(
+        {{#savedStateList}}
+            "{{name}}" to {{name}},
+        {{/savedStateList}}
+    )
+    InternalWorkflowUtils.add(this, dispatcher, "{{className}}#${System.currentTimeMillis()}")
+
+    dispatcher.requestPermissions(
+        permissions.toTypedArray(),
+        {{className}}.REQUEST_CODE,
+    )
+}
+
+internal class {{className}} : Fragment() {
+    {{#savedStateList}}
+        val {{name}}: {{typeName}}{{#nullable}}?{{/nullable}}
+            get() = requireArguments().get("{{name}}") as {{typeName}}{{#nullable}}?{{/nullable}}
+    {{/savedStateList}}
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        check(requestCode == REQUEST_CODE) {
+            "bad request code: $REQUEST_CODE"
+        }
+
+        (InternalWorkflowUtils.requireParent(this) as {{callbackClassName}})
+            .{{callbackMethodName}}(
+                RuntimePermissionResult(permissions.toList(), grantResults.toList()),
+                {{#savedStateList}}
+                    {{name}},
+                {{/savedStateList}}
+            )
+        InternalWorkflowUtils.remove(this)
+    }
+
+    companion object {
+        internal const val REQUEST_CODE = 0x3103
+    }
+}

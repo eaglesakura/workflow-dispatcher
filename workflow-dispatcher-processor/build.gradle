@@ -4,4 +4,5 @@ apply from: rootProject.file("scripts/deploy-bintray-jvm.gradle")
 dependencies {
     implementation project(":workflow-dispatcher-annotations")
     implementation "com.squareup:kotlinpoet:1.7.2"
+    implementation 'com.samskivert:jmustache:1.15'
 }

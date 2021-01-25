@@ -1,0 +1,74 @@
+@file:Suppress("unused")
+package {{packageName}}
+
+import android.app.*
+import android.content.*
+import android.os.*
+import android.content.*
+import androidx.fragment.app.*
+import androidx.fragment.app.DialogFragment
+import com.eaglesakura.workflowdispatcher.internal.*
+import com.eaglesakura.workflowdispatcher.dialog.*
+import androidx.core.os.bundleOf
+
+internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
+    factory: ParcelableDialogFactory,
+{{#savedStateList}}
+    {{name}}: {{typeName}}{{#nullable}}?{{/nullable}},
+{{/savedStateList}}
+) {
+    val dispatcher = {{className}}()
+    dispatcher.arguments = bundleOf(
+        {{className}}.ARGUMENT_DIALOG_FACTORY to factory,
+        {{#savedStateList}}
+            "{{name}}" to {{name}},
+        {{/savedStateList}}
+    )
+    dispatcher.show(
+        InternalWorkflowUtils.requireFragmentManager(this),
+        "{{className}}#${System.currentTimeMillis()}"
+    )
+}
+
+internal class {{className}} : DialogFragment() {
+    {{#savedStateList}}
+        val {{name}}: {{typeName}}{{#nullable}}?{{/nullable}}
+            get() = requireArguments().get("{{name}}") as {{typeName}}{{#nullable}}?{{/nullable}}
+    {{/savedStateList}}
+
+    val internalDialogFactory: ParcelableDialogFactory
+        get() = requireArguments().get(ARGUMENT_DIALOG_FACTORY) as ParcelableDialogFactory
+
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return internalDialogFactory.onCreateDialog(this, savedInstanceState)
+    }
+
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        (InternalWorkflowUtils.requireParent(this) as {{callbackClassName}})
+            .{{callbackMethodName}}(
+                DialogResult.CANCELED,
+                {{#savedStateList}}
+                    {{name}},
+                {{/savedStateList}}
+            )
+    }
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        internalDialogFactory.getResult(this, dialog)?.also { dialogResult ->
+            (InternalWorkflowUtils.requireParent(this) as {{callbackClassName}})
+                .{{callbackMethodName}}(
+                    dialogResult,
+                    {{#savedStateList}}
+                        {{name}},
+                    {{/savedStateList}}
+                )
+        }
+        InternalWorkflowUtils.remove(this)
+    }
+
+    companion object {
+        internal const val ARGUMENT_DIALOG_FACTORY = ".ARGUMENT_DIALOG_FACTORY"
+    }
+}

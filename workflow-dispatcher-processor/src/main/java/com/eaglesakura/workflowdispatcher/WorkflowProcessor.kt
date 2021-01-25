@@ -11,7 +11,8 @@ import javax.lang.model.element.TypeElement
  */
 internal class WorkflowProcessor : AbstractProcessor() {
 
-    override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
+    @Suppress("FunctionName")
+    private fun process_v1_0(annotations: Set<TypeElement>, roundEnv: RoundEnvironment) {
         val buildTargets = listOf(
             roundEnv.getElementsAnnotatedWith(OnDialogResultFlow::class.java)
                 .map { (it as ExecutableElement).enclosingElement as TypeElement },
@@ -31,6 +32,53 @@ internal class WorkflowProcessor : AbstractProcessor() {
                 workflowOwner = ownerElement
             ).generate()
         }
+    }
+
+    @Suppress("FunctionName")
+    private fun process_v1_1(annotations: Set<TypeElement>, roundEnv: RoundEnvironment) {
+        listOf(
+            roundEnv.getElementsAnnotatedWith(OnDialogResultFlow::class.java)
+                .map { it as ExecutableElement },
+        ).flatten().forEach { executableElement ->
+            WorkflowFileGenerator2(
+                processor = this,
+                elementUtils = processingEnv.elementUtils!!,
+                processingEnv = processingEnv,
+                roundEnv = roundEnv,
+                executableElement = executableElement,
+            ).generateForDialog()
+        }
+
+        listOf(
+            roundEnv.getElementsAnnotatedWith(OnActivityResultFlow::class.java)
+                .map { it as ExecutableElement },
+        ).flatten().forEach { executableElement ->
+            WorkflowFileGenerator2(
+                processor = this,
+                elementUtils = processingEnv.elementUtils!!,
+                processingEnv = processingEnv,
+                roundEnv = roundEnv,
+                executableElement = executableElement,
+            ).generateForActivity()
+        }
+
+        listOf(
+            roundEnv.getElementsAnnotatedWith(OnRuntimePermissionResultFlow::class.java)
+                .map { it as ExecutableElement },
+        ).flatten().forEach { executableElement ->
+            WorkflowFileGenerator2(
+                processor = this,
+                elementUtils = processingEnv.elementUtils!!,
+                processingEnv = processingEnv,
+                roundEnv = roundEnv,
+                executableElement = executableElement,
+            ).generateForRuntimePermissions()
+        }
+    }
+
+    override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
+//        process_v1_0(annotations, roundEnv)
+        process_v1_1(annotations, roundEnv)
         return true
     }
 

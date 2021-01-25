@@ -1,6 +1,7 @@
 package com.eaglesakura.workflowdispatcher.dialog
 
 import android.os.Parcelable
+import com.eaglesakura.workflowdispatcher.internal.CanceledDialogResult
 
 /**
  * Dialog selected object.
@@ -32,5 +33,12 @@ abstract class DialogResult : Parcelable {
          * Canceled or other.
          */
         Cancel,
+    }
+
+    companion object {
+        /**
+         * Dialog is canceled.
+         */
+        val CANCELED: DialogResult = CanceledDialogResult()
     }
 }
