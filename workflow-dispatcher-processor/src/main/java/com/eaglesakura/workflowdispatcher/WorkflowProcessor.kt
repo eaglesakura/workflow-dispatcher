@@ -13,12 +13,12 @@ internal class WorkflowProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
         val buildTargets = listOf(
-                roundEnv.getElementsAnnotatedWith(OnDialogResultFlow::class.java)
-                        .map { (it as ExecutableElement).enclosingElement as TypeElement },
-                roundEnv.getElementsAnnotatedWith(OnActivityResultFlow::class.java)
-                        .map { (it as ExecutableElement).enclosingElement as TypeElement },
-                roundEnv.getElementsAnnotatedWith(OnRuntimePermissionResultFlow::class.java)
-                        .map { (it as ExecutableElement).enclosingElement as TypeElement }
+            roundEnv.getElementsAnnotatedWith(OnDialogResultFlow::class.java)
+                .map { (it as ExecutableElement).enclosingElement as TypeElement },
+            roundEnv.getElementsAnnotatedWith(OnActivityResultFlow::class.java)
+                .map { (it as ExecutableElement).enclosingElement as TypeElement },
+            roundEnv.getElementsAnnotatedWith(OnRuntimePermissionResultFlow::class.java)
+                .map { (it as ExecutableElement).enclosingElement as TypeElement }
         ).flatten().toSet().toList()
 
         buildTargets.forEach { ownerElement ->
@@ -38,9 +38,9 @@ internal class WorkflowProcessor : AbstractProcessor() {
 
     override fun getSupportedAnnotationTypes(): Set<String> {
         return listOf(
-                OnActivityResultFlow::class,
-                OnDialogResultFlow::class,
-                OnRuntimePermissionResultFlow::class
+            OnActivityResultFlow::class,
+            OnDialogResultFlow::class,
+            OnRuntimePermissionResultFlow::class
         ).map { it.qualifiedName!! }.toSet()
     }
 }

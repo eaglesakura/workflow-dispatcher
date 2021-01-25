@@ -1,0 +1,65 @@
+apply plugin: "org.jetbrains.dokka"
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+dokkaHtml {
+    outputDirectory = new File(buildDir, "dokka")
+    dokkaSourceSets {
+        named("main") {
+            noStdlibLink = true
+            noJdkLink = true
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.kotlin.srcDirs
+    archiveClassifier.set('sources')
+}
+
+task javadocJar(type: Jar, dependsOn: dokkaHtml) {
+    from "$buildDir/dokka"
+    archiveClassifier.set('javadoc')
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            from components.kotlin
+            artifactId = project.name
+            // Adds javadocs and sources as separate jars.
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
+bintray {
+    user = bintray_configs.user
+    key = System.env.BINTRAY_API_KEY
+    publish = true
+    override = true
+    pkg {
+        repo = bintray_configs.repository_name
+        name = project.name
+        vcsUrl = bintray_configs.vcs_url
+        issueTrackerUrl = bintray_configs.issues_url
+        licenses = bintray_configs.licenses
+        labels = bintray_configs.labels
+        version {
+            name = project.version
+            released = new Date()
+            gpg {
+                sign = true
+                passphrase = System.env.BINTRAY_GPG_PASS
+            }
+        }
+        configurations = ['archives']
+        publications = ['release']
+    }
+}

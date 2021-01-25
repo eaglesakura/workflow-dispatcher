@@ -1,0 +1,12 @@
+// Project settings.
+ext {
+    artifact.base_version = "1.1"
+    artifact.base_group = "com.eaglesakura.workflowdispatcher"
+
+    bintray_configs.user = "eaglesakura"
+    bintray_configs.labels = ["kotlin", "android"]
+    bintray_configs.vcs_url = "https://github.com/eaglesakura/${rootProject.name}"
+    bintray_configs.repository_name = "maven"
+    bintray_configs.issues_url = "${bintray_configs.vcs_url}/issues"
+    bintray_configs.licenses = ["MIT"]
+}

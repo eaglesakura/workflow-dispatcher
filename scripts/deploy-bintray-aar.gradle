@@ -1,0 +1,81 @@
+group = "${artifact.base_group}.${project.name}"
+version = artifact.deploy_version
+
+apply plugin: "org.jetbrains.dokka"
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+dokkaHtml {
+    outputDirectory = new File(buildDir, "dokka")
+    dokkaSourceSets {
+        named("main") {
+            noStdlibLink = true
+            noJdkLink = true
+            noAndroidSdkLink = true
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set('sources')
+}
+
+task javadocJar(type: Jar, dependsOn: dokkaHtml) {
+    from "$buildDir/dokka"
+    archiveClassifier.set('javadoc')
+}
+
+/**
+ * Maven deploy settings.
+ * https://developer.android.com/studio/build/maven-publish-plugin
+ */
+android.libraryVariants.all { variant ->
+    if ("release" != variant.name) {
+        return
+    }
+
+    artifacts {
+        archives javadocJar
+        archives sourcesJar
+    }
+
+    afterEvaluate {
+        publishing {
+            publications {
+                release(MavenPublication) {
+                    from components.release
+                    groupId = "${artifact.base_group}.${project.name}"
+                    artifactId = project.name
+                    artifact sourcesJar
+                    artifact javadocJar
+                }
+            }
+        }
+    }
+
+    bintray {
+        user = bintray_configs.user
+        key = System.env.BINTRAY_API_KEY
+        publish = true
+        override = true
+        pkg {
+            repo = bintray_configs.repository_name
+            name = project.name
+            vcsUrl = bintray_configs.vcs_url
+            issueTrackerUrl = bintray_configs.issues_url
+            licenses = bintray_configs.licenses
+            labels = bintray_configs.labels
+            version {
+                name = project.version
+                released = new Date()
+                gpg {
+                    sign = true
+                    passphrase = System.env.BINTRAY_GPG_PASS
+                }
+            }
+            configurations = ['archives']
+            publications = ['release']
+        }
+    }
+}

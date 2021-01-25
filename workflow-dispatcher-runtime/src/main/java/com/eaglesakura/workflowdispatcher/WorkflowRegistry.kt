@@ -87,7 +87,7 @@ class WorkflowRegistry<T : Any>(
     private fun assertCanCreate(id: Any, requestCode: Int) {
         require(
             !onActivityResultHandlers.contains(requestCode) &&
-                    !onActivityResultHandlers.contains(requestCode)
+                !onActivityResultHandlers.contains(requestCode)
         ) {
             "Illegal action ID='$id'"
         }

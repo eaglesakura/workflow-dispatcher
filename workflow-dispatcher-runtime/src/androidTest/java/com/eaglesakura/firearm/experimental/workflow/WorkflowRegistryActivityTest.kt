@@ -194,11 +194,17 @@ internal class SecondActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        UIHandler.postDelayed({
-            setResult(RESULT_OK, Intent().also {
-                it.putExtra("key", "value")
-            })
-            finish()
-        }, 100)
+        UIHandler.postDelayed(
+            {
+                setResult(
+                    RESULT_OK,
+                    Intent().also {
+                        it.putExtra("key", "value")
+                    }
+                )
+                finish()
+            },
+            100
+        )
     }
 }

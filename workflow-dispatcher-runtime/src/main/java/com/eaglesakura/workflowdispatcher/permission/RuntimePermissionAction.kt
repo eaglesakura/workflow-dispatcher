@@ -23,7 +23,8 @@ class RuntimePermissionAction<T : Any> internal constructor(
         val holder = registry.getStateHolder(sender)
         if (flowState != null) {
             registry.setExtra(
-                holder, id, bundleOf(
+                holder, id,
+                bundleOf(
                     Pair(EXTRA_STATE, flowState)
                 )
             )

@@ -91,12 +91,14 @@ internal class WorkflowFileGenerator(
             workflowOwner.poetClassName.packageName,
             fileName
         ).openWriter().use { writer ->
-            writer.write(fileSpec.build().toString().let {
-                var result = it
-                result = result.replace("import java.lang.String", "")
-                result = result.replace("import kotlin.String", "")
-                result
-            })
+            writer.write(
+                fileSpec.build().toString().let {
+                    var result = it
+                    result = result.replace("import java.lang.String", "")
+                    result = result.replace("import kotlin.String", "")
+                    result
+                }
+            )
         }
     }
 
@@ -134,34 +136,36 @@ internal class WorkflowFileGenerator(
         return PropertySpec.builder(
             entryPointName,
             entryPointClass
-        ).initializer(buildString {
-            append("${propertyWorkflowRegistry.name}.$propertyGeneratorName(\"$entryPointName\") { sender")
-            defaultResultArguments.forEach { arg ->
-                append(", ${arg.name}")
-            }
-            append(", savedFlowState ->")
-            append("\n")
-
-            append("sender.${flowResultMethod.methodName}(")
-            defaultResultArguments.forEachIndexed { index, arg ->
-                if (index > 0) {
-                    append(", ")
+        ).initializer(
+            buildString {
+                append("${propertyWorkflowRegistry.name}.$propertyGeneratorName(\"$entryPointName\") { sender")
+                defaultResultArguments.forEach { arg ->
+                    append(", ${arg.name}")
                 }
-                append(arg.name)
-            }
+                append(", savedFlowState ->")
+                append("\n")
 
-            savedFlowParameters.forEach { arg ->
-                append(", $BASE_PACKAGE_NAME.internal.parseSavedStateBundle(")
-                append("savedFlowState")
-                append(", \"${arg.name}\"")
-                append(", ${arg.type.isNullable}")
+                append("sender.${flowResultMethod.methodName}(")
+                defaultResultArguments.forEachIndexed { index, arg ->
+                    if (index > 0) {
+                        append(", ")
+                    }
+                    append(arg.name)
+                }
+
+                savedFlowParameters.forEach { arg ->
+                    append(", $BASE_PACKAGE_NAME.internal.parseSavedStateBundle(")
+                    append("savedFlowState")
+                    append(", \"${arg.name}\"")
+                    append(", ${arg.type.isNullable}")
+                    append(")")
+                }
+
                 append(")")
+
+                append("\n}")
             }
-
-            append(")")
-
-            append("\n}")
-        })
+        )
             .addModifiers(KModifier.PRIVATE)
             .build()
     }
@@ -333,16 +337,18 @@ internal class WorkflowFileGenerator(
                 "permissions",
                 CLASS_STRING_LIST
             )
-                .defaultValue(buildString {
-                    append("listOf(")
-                    flowAnnotation.permissions.forEachIndexed { index, permission ->
-                        if (index > 0) {
-                            append(", ")
+                .defaultValue(
+                    buildString {
+                        append("listOf(")
+                        flowAnnotation.permissions.forEachIndexed { index, permission ->
+                            if (index > 0) {
+                                append(", ")
+                            }
+                            append("\"$permission\"")
                         }
-                        append("\"$permission\"")
+                        append(")")
                     }
-                    append(")")
-                })
+                )
                 .build()
         )
         val resultCallbackArguments: List<ParameterSpec> = listOf(

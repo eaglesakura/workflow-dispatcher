@@ -1,0 +1,27 @@
+apply plugin: 'kotlin'
+
+group "${artifact.base_group}.${project.name}"
+version artifact.deploy_version
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        useIR = true
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        useIR = true
+    }
+}
+
+dependencies {
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin_coroutines}"
+
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
+}
+
+apply from: rootProject.file('scripts/formatter.gradle')

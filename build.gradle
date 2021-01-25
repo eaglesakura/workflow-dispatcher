@@ -1,13 +1,26 @@
 buildscript {
     ext {
         versions = [
-                android_minSdkVersion   : 21,
-                android_targetSdkVersion: 29,
-                kotlin                  : "1.3.71",
-                kotlin_coroutines       : "1.3.3",
-                android_plugin          : "3.6.1",
+                kotlin              : "1.4.21",
+                kotlin_coroutines   : "1.4.1",
+                android_plugin      : "4.1.2",
+                android_minSdk      : 21,
+                android_targetSdk   : 30,
+                android_buildTools  : "30.0.3",
         ]
-        kotlin_version = '1.3.71'
+        artifact = [
+                deploy_version: "1.0-SNAPSHOT",
+                base_version  : "1.0",
+                base_group    : "com.example.artifact.group"
+        ]
+        bintray_configs = [
+                user           : "user-name",
+                labels         : ["kotlin", "android"],
+                repository_name: "repo",
+                vcs_url        : "https://example.com/vcs",
+                issues_url     : "https://example.com/vcs/issues",
+                licenses       : ["MIT"],
+        ]
     }
     repositories {
         mavenLocal()
@@ -18,12 +31,13 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:${versions.android_plugin}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-        classpath("org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.18") // kotlin-docs
-        classpath("com.github.ben-manes:gradle-versions-plugin:0.21.0") // version checking plugin
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.4.10.2"
 
         // deploy to bintray
-        classpath("com.github.dcendents:android-maven-gradle-plugin:2.1")
-        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
+        classpath("com.github.dcendents:android-maven-gradle-plugin:2.1") {
+            exclude group: "org.apache.maven"
+        }
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5"
     }
 }
 
@@ -33,7 +47,13 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-        maven { url "https://dl.bintray.com/eaglesakura/maven/" }
+        maven { url = "https://dl.bintray.com/eaglesakura/maven/" }
     }
-    apply from: rootProject.file("configure.gradle.kts")
 }
+
+apply from: rootProject.file('build.properties.gradle')
+apply from: rootProject.file('scripts/configure.gradle.kts')
+
+println("${project.name}.versions.$versions")
+println("${project.name}.artifact.$artifact")
+println("${project.name}.bintray_configs.$bintray_configs")
