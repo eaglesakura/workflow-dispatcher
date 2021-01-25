@@ -38,7 +38,7 @@ class WorkflowRegistryDialogTest {
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         // click OK.
-        delay(500)
+        delay(1000)
         onView(withText("OK")).perform(ViewActions.click())
 
         // click Cancel.
@@ -62,7 +62,7 @@ class WorkflowRegistryDialogTest {
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         // click OK.
-        delay(500)
+        delay(1000)
         onView(withText("OK")).perform(ViewActions.click())
 
         // click Cancel.
@@ -86,7 +86,7 @@ class WorkflowRegistryDialogTest {
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         // click OK.
-        delay(500)
+        delay(1000)
         onView(withText("OK")).perform(ViewActions.click())
 
         delay(500)
