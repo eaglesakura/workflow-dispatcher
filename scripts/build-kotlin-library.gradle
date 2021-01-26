@@ -1,6 +1,10 @@
 apply plugin: 'kotlin'
 
-group "${artifact.base_group}.${project.name}"
+if (artifact.dynamic_group_id) {
+    group "${artifact.base_group}.${project.name}"
+} else {
+    group artifact.base_group
+}
 version artifact.deploy_version
 
 compileKotlin {

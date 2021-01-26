@@ -1,17 +1,18 @@
 buildscript {
     ext {
         versions = [
-                kotlin              : "1.4.21",
-                kotlin_coroutines   : "1.4.1",
-                android_plugin      : "4.1.2",
-                android_minSdk      : 21,
-                android_targetSdk   : 30,
-                android_buildTools  : "30.0.3",
+                kotlin            : "1.4.21",
+                kotlin_coroutines : "1.4.1",
+                android_plugin    : "4.1.2",
+                android_minSdk    : 21,
+                android_targetSdk : 30,
+                android_buildTools: "30.0.3",
         ]
         artifact = [
-                deploy_version: "1.0-SNAPSHOT",
-                base_version  : "1.0",
-                base_group    : "com.example.artifact.group"
+                deploy_version  : "1.0-SNAPSHOT",
+                base_version    : "1.0",
+                base_group      : "com.example.artifact.group",
+                dynamic_group_id: true,
         ]
         bintray_configs = [
                 user           : "user-name",

@@ -1,6 +1,3 @@
-group = "${artifact.base_group}.${project.name}"
-version = artifact.deploy_version
-
 apply plugin: "org.jetbrains.dokka"
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
@@ -45,7 +42,7 @@ android.libraryVariants.all { variant ->
             publications {
                 release(MavenPublication) {
                     from components.release
-                    groupId = "${artifact.base_group}.${project.name}"
+                    groupId = project.group
                     artifactId = project.name
                     artifact sourcesJar
                     artifact javadocJar
@@ -79,3 +76,5 @@ android.libraryVariants.all { variant ->
         }
     }
 }
+
+println("artifact \"${project.group}:${project.name}:${project.version}\"")

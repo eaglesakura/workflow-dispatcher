@@ -63,3 +63,5 @@ bintray {
         publications = ['release']
     }
 }
+
+println("artifact \"${project.group}:${project.name}:${project.version}\"")

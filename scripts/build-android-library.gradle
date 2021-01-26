@@ -1,6 +1,13 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+if (artifact.dynamic_group_id) {
+    group "${artifact.base_group}.${project.name}"
+} else {
+    group artifact.base_group
+}
+version = artifact.deploy_version
+
 android {
     compileSdkVersion versions.android_targetSdk
     buildToolsVersion versions.android_buildTools
