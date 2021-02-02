@@ -19,7 +19,7 @@ apply plugin: 'kotlin-kapt'
 
 // add runtime library, annotation processor.
 dependencies {
-    def workflow_dispatcher_version = "1.0.0"
+    def workflow_dispatcher_version = "1.1.0"
     implementation("com.eaglesakura.workflowdispatcher:workflow-dispatcher-runtime:${workflow_dispatcher_version}") {
         exclude(group: "androidx.appcompat")
         exclude(group: "androidx.lifecycle")
