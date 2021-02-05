@@ -19,7 +19,6 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
-        useIR = true
     }
 
     buildTypes {
@@ -40,7 +39,7 @@ dependencies {
     implementation project(":workflow-dispatcher-runtime")
     kapt project(":workflow-dispatcher-processor")
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
