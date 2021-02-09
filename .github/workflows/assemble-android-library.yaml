@@ -1,8 +1,11 @@
 ####################################################################################
 # Repository > Settings > Secrets:
 # Bintray
-#   BINTRAY_API_KEY   : API KEY for Bintray uploading.
-#   BINTRAY_GPG_PASS  : Signing key for Bintray uploading.
+#   MAVENCENTRAL_USERNAME     : maven user access token/username.
+#   MAVENCENTRAL_PASSWORD     : maven user access token/password.
+#   MAVENCENTRAL_PRIVATE_KEY  : base64 encoded private key.
+#   MAVENCENTRAL_GPG_KEYID    : Signing keyId.
+#   MAVENCENTRAL_GPG_PASSWORD : Signing password.
 ####################################################################################
 name: assemble Android library aar
 on:
@@ -14,8 +17,10 @@ jobs:
     env:
       _JAVA_OPTIONS: "-Xmx4g -Dfile.encoding=UTF-8"
       TZ: Asia/Tokyo
-      BINTRAY_API_KEY: ${{secrets.BINTRAY_API_KEY}}
-      BINTRAY_GPG_PASS: ${{secrets.BINTRAY_GPG_PASS}}
+      MAVENCENTRAL_USERNAME: ${{secrets.MAVENCENTRAL_USERNAME}}
+      MAVENCENTRAL_PASSWORD: ${{secrets.MAVENCENTRAL_PASSWORD}}
+      MAVENCENTRAL_GPG_KEYID: ${{secrets.MAVENCENTRAL_GPG_KEYID}}
+      MAVENCENTRAL_GPG_PASSWORD: ${{secrets.MAVENCENTRAL_GPG_PASSWORD}}
     steps:
       - uses: actions/checkout@v2.0.0
       - name: "cache / gradle"
@@ -64,6 +69,8 @@ jobs:
         with:
           report_paths: '**/build/test-results/**/TEST-*.xml'
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: "android / publish / bintray"
+      - name: "kotlin / publish / mavencentral"
         run: |
-          ./gradlew bintrayUpload
+          echo '${{secrets.MAVENCENTRAL_PRIVATE_KEY}}' | base64 -d > .github/sign/sign.gpg
+          ./gradlew publish \
+              --stacktrace

@@ -1,0 +1,79 @@
+apply plugin: "org.jetbrains.dokka"
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+ext."signing.keyId" = "${System.env.MAVENCENTRAL_GPG_KEYID}"
+ext."signing.password" = "${System.env.MAVENCENTRAL_GPG_PASSWORD}"
+ext."signing.secretKeyRingFile" = rootProject.file(".github/sign/sign.gpg")
+
+dokkaHtml {
+    outputDirectory = new File(buildDir, "dokka")
+    dokkaSourceSets {
+        named("main") {
+            noStdlibLink = true
+            noJdkLink = true
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.kotlin.srcDirs
+    archiveClassifier.set('sources')
+}
+
+task javadocJar(type: Jar, dependsOn: dokkaHtml) {
+    from "$buildDir/dokka"
+    archiveClassifier.set('javadoc')
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+publishing {
+    repositories {
+        maven {
+            url mavencentral.repository_url
+            credentials {
+                username "${System.env.MAVENCENTRAL_USERNAME}"
+                password "${System.env.MAVENCENTRAL_PASSWORD}"
+            }
+        }
+    }
+    publications {
+        release(MavenPublication) { publication ->
+            from components.kotlin
+            artifactId = project.name
+            // Adds javadocs and sources as separate jars.
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                url = mavencentral.vcs_url
+                name = project.name
+                description = mavencentral.pom_description
+                licenses {
+                    license {
+                        name = mavencentral.license_name
+                        url = mavencentral.license_url
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'eaglesakura'
+                        name = 'Yamashita Takeshi'
+                    }
+                }
+                scm {
+                    url = mavencentral.vcs_url
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.release
+}
+
+println("artifact \"${project.group}:${project.name}:${project.version}\"")
