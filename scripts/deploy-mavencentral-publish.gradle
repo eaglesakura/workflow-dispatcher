@@ -1,0 +1,9 @@
+ext."nexusUsername" = "${System.env.MAVENCENTRAL_USERNAME}"
+ext."nexusPassword" = "${System.env.MAVENCENTRAL_PASSWORD}"
+
+apply plugin: 'io.codearte.nexus-staging'
+nexusStaging {
+    packageGroup = mavencentral.package_group
+}
+
+println("artifact \"${project.group}:${project.name}:${project.version}\"")

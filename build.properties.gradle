@@ -1,13 +1,13 @@
 // Project settings.
 ext {
     artifact.base_version = "1.1"
-    artifact.base_group = "com.eaglesakura.workflowdispatcher"
+    artifact.base_group = "io.github.eaglesakura.workflowdispatcher"
     artifact.dynamic_group_id = false
 
-    bintray_configs.user = "eaglesakura"
-    bintray_configs.labels = ["kotlin", "android"]
-    bintray_configs.vcs_url = "https://github.com/eaglesakura/${rootProject.name}"
-    bintray_configs.repository_name = "maven"
-    bintray_configs.issues_url = "${bintray_configs.vcs_url}/issues"
-    bintray_configs.licenses = ["MIT"]
+    mavencentral.pom_description = "Android Async workflow support annotation-library."
+
+    mavencentral.vcs_url = "https://github.com/eaglesakura/${rootProject.name}"
+    mavencentral.license_name = "MIT"
+    mavencentral.license_url = mavencentral.vcs_url
+    mavencentral.package_group = "io.github.eaglesakura"
 }

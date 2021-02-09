@@ -1,5 +1,5 @@
 apply from: rootProject.file("scripts/build-kotlin-library.gradle")
-apply from: rootProject.file("scripts/deploy-bintray-jvm.gradle")
+apply from: rootProject.file("scripts/deploy-mavencentral-jvm.gradle")
 
 dependencies {
     implementation project(":workflow-dispatcher-annotations")

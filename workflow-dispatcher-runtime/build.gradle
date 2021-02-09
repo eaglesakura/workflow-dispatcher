@@ -1,6 +1,6 @@
 apply from: rootProject.file('scripts/build-android-library.gradle')
 apply plugin: 'kotlin-parcelize'
-apply from: rootProject.file('scripts/deploy-bintray-aar.gradle')
+apply from: rootProject.file('scripts/deploy-mavencentral-aar.gradle')
 
 dependencies {
     /**
@@ -16,8 +16,8 @@ dependencies {
      * Libraries.
      */
     api project(":workflow-dispatcher-annotations")
-    testImplementation("com.eaglesakura.armyknife.armyknife-runtime:armyknife-runtime:1.3.9")
-    testImplementation("com.eaglesakura.armyknife.armyknife-jetpack:armyknife-jetpack:1.4.17")
-    androidTestImplementation("com.eaglesakura.armyknife.armyknife-jetpack:armyknife-jetpack:1.4.17")
-    androidTestImplementation("com.eaglesakura.armyknife.armyknife-runtime:armyknife-runtime:1.3.9")
+    testImplementation("io.github.eaglesakura.armyknife-runtime:armyknife-runtime:1.3.10")
+    testImplementation("io.github.eaglesakura.armyknife-jetpack:armyknife-jetpack:1.4.18")
+    androidTestImplementation("io.github.eaglesakura.armyknife-runtime:armyknife-runtime:1.3.10")
+    androidTestImplementation("io.github.eaglesakura.armyknife-jetpack:armyknife-jetpack:1.4.18")
 }
