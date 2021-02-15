@@ -16,8 +16,8 @@ dependencies {
      * Libraries.
      */
     api project(":workflow-dispatcher-annotations")
-    testImplementation("io.github.eaglesakura.armyknife-runtime:armyknife-runtime:1.3.10")
-    testImplementation("io.github.eaglesakura.armyknife-jetpack:armyknife-jetpack:1.4.18")
-    androidTestImplementation("io.github.eaglesakura.armyknife-runtime:armyknife-runtime:1.3.10")
-    androidTestImplementation("io.github.eaglesakura.armyknife-jetpack:armyknife-jetpack:1.4.18")
+    testImplementation("io.github.eaglesakura.armyknife-runtime:armyknife-runtime:1.4.0")
+    testImplementation("io.github.eaglesakura.armyknife-jetpack:armyknife-jetpack:1.5.0")
+    androidTestImplementation("io.github.eaglesakura.armyknife-runtime:armyknife-runtime:1.4.0")
+    androidTestImplementation("io.github.eaglesakura.armyknife-jetpack:armyknife-jetpack:1.5.0")
 }

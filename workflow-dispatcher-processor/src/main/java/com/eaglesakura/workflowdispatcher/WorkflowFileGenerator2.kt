@@ -10,10 +10,10 @@ import javax.lang.model.util.Elements
 import javax.tools.StandardLocation
 
 internal class WorkflowFileGenerator2(
-    private val processor: WorkflowProcessor,
-    private val elementUtils: Elements,
+    @Suppress("unused") private val processor: WorkflowProcessor,
+    @Suppress("unused") private val elementUtils: Elements,
     private val processingEnv: ProcessingEnvironment,
-    private val roundEnv: RoundEnvironment,
+    @Suppress("unused") private val roundEnv: RoundEnvironment,
     private val executableElement: ExecutableElement,
 ) {
     /**
@@ -48,7 +48,7 @@ internal class WorkflowFileGenerator2(
             checkNotNull(stream) {
                 "not found $templatePath"
             }
-            stream.readAllBytes().toString(Charsets.UTF_8)
+            stream.readBytes().toString(Charsets.UTF_8)
         }
 
         val mustache = Mustache.compiler().compile(template)
