@@ -4,15 +4,15 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import com.eaglesakura.workflowdispatcher.OnActivityResultFlow
 import com.eaglesakura.workflowdispatcher.OnDialogResultFlow
 import com.eaglesakura.workflowdispatcher.OnRuntimePermissionResultFlow
-import com.eaglesakura.workflowdispatcher.activity.ActivityResult
 import com.eaglesakura.workflowdispatcher.dialog.AlertDialogFactory
 import com.eaglesakura.workflowdispatcher.dialog.DialogResult
 import com.eaglesakura.workflowdispatcher.permission.RuntimePermissionResult
-import java.util.Date
+import java.util.*
 
 class ExampleAfterActivity : AppCompatActivity() {
     /**
@@ -81,7 +81,10 @@ class ExampleAfterActivity : AppCompatActivity() {
      * Workflow Step 4, close browser, show temporary data.
      */
     @OnActivityResultFlow("showWebsite")
-    fun onShowWebsiteOnChromeResult(result: ActivityResult, startDate: Date) {
+    fun onShowWebsiteOnChromeResult(
+        result: ActivityResult,
+        startDate: Date
+    ) {
         // show toast
         Toast.makeText(this, "done workflow, startDate='$startDate'", Toast.LENGTH_SHORT)
             .show()
