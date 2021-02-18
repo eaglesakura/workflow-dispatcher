@@ -11,6 +11,9 @@ import com.eaglesakura.workflowdispatcher.internal.*
 import com.eaglesakura.workflowdispatcher.permission.*
 import androidx.core.os.bundleOf
 import android.util.Log
+import androidx.activity.result.*
+import androidx.activity.result.contract.*
+import androidx.core.app.*
 
 internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
     permissions: List<String> = listOf({{#permissions}}"{{.}}",{{/permissions}}),
@@ -20,15 +23,15 @@ internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
 ) {
     val dispatcher = {{className}}()
     dispatcher.arguments = bundleOf(
+        "@ARGUMENT_PERMISSIONS" to permissions.toTypedArray(),
         {{#savedStateList}}
             "{{name}}" to {{name}},
         {{/savedStateList}}
     )
     InternalWorkflowUtils.add(this, dispatcher, "{{className}}")
 
-    dispatcher.requestPermissions(
+    dispatcher.{{entryPointFunctionName}}.launch(
         permissions.toTypedArray(),
-        {{className}}.REQUEST_CODE,
     )
 }
 
@@ -38,24 +41,22 @@ internal class {{className}} : Fragment() {
             get() = requireArguments().get("{{name}}") as {{typeName}}{{#nullable}}?{{/nullable}}
     {{/savedStateList}}
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        check(requestCode == REQUEST_CODE) {
-            "bad request code: $REQUEST_CODE"
-        }
+    private val permissions: List<String>
+        get() = requireArguments().getStringArray("@ARGUMENT_PERMISSIONS")!!.toList()
 
-        (InternalWorkflowUtils.requireParent(this) as {{callbackClassName}})
-            .{{callbackMethodName}}(
-                RuntimePermissionResult(permissions.toList(), grantResults.toList()),
-                {{#savedStateList}}
-                    {{name}},
-                {{/savedStateList}}
-            )
-        InternalWorkflowUtils.remove(this)
-    }
+    val {{entryPointFunctionName}} =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result: Map<String, Boolean> ->
+            Log.d(TAG, "ActivityResultContracts.RequestMultiplePermissions().result: $tag")
+            (InternalWorkflowUtils.requireParent(this) as {{callbackClassName}})
+                .{{callbackMethodName}}(
+                    InternalWorkflowUtils.parseFromRequestMultiplePermissionsContractResult(permissions, result),
+                    {{#savedStateList}}
+                        {{name}},
+                    {{/savedStateList}}
+                )
+
+            InternalWorkflowUtils.remove(this)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +79,6 @@ internal class {{className}} : Fragment() {
     }
 
     companion object {
-        internal const val REQUEST_CODE = 0x3103
         private const val TAG = "{{className}}"
     }
 }

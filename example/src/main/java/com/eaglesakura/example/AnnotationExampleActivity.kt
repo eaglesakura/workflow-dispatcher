@@ -4,8 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
-import com.eaglesakura.workflowdispatcher.activity.ActivityResult
 import com.eaglesakura.workflowdispatcher.OnActivityResultFlow
 import com.eaglesakura.workflowdispatcher.OnDialogResultFlow
 import com.eaglesakura.workflowdispatcher.OnRuntimePermissionResultFlow
@@ -65,6 +65,8 @@ class AnnotationExampleActivity : AppCompatActivity() {
     )
     internal fun onRuntimePermissionResult(result: RuntimePermissionResult) {
         if (!result.allGranted) {
+            Toast.makeText(this, "permission not granted: ${result.permissions}", Toast.LENGTH_LONG)
+                .show()
             finish()
             return
         }
@@ -85,6 +87,8 @@ class AnnotationExampleActivity : AppCompatActivity() {
         url: String
     ) {
         if (!result.allGranted) {
+            Toast.makeText(this, "permission not granted: ${result.permissions}", Toast.LENGTH_LONG)
+                .show()
             finish()
             return
         }

@@ -1,11 +1,13 @@
 package com.eaglesakura.workflowdispatcher.internal
 
+import android.content.pm.PackageManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
+import com.eaglesakura.workflowdispatcher.permission.RuntimePermissionResult
 import java.util.concurrent.atomic.AtomicInteger
 
 object InternalWorkflowUtils {
@@ -42,6 +44,22 @@ object InternalWorkflowUtils {
         self.parentFragmentManager.commit {
             remove(self)
         }
+    }
+
+    fun parseFromRequestMultiplePermissionsContractResult(
+        requestPermissions: List<String>,
+        result: Map<String, Boolean>,
+    ): RuntimePermissionResult {
+        return RuntimePermissionResult(
+            permissions = requestPermissions,
+            granted = requestPermissions.map { permission ->
+                if (result[permission] == true) {
+                    PackageManager.PERMISSION_GRANTED
+                } else {
+                    PackageManager.PERMISSION_DENIED
+                }
+            }
+        )
     }
 
     private val commitNumber = AtomicInteger()

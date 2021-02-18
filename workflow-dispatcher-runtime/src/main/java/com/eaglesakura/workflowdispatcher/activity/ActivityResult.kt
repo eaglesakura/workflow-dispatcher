@@ -1,33 +1,7 @@
 package com.eaglesakura.workflowdispatcher.activity
 
-import android.app.Activity
-import android.content.Intent
-
-/**
- * wrap onActivityResult() handler params.
- */
-data class ActivityResult(
-    /**
-     * Result Value
-     */
-    val result: Int,
-
-    /**
-     * Result data.
-     */
-    val data: Intent?
-) {
-    /**
-     * check this.result == Activity.RESULT_OK
-     */
-    val ok: Boolean
-        get() = result == Activity.RESULT_OK
-
-    /**
-     * returns non-null intent.
-     */
-    fun requireIntent(): Intent =
-        requireNotNull(data) {
-            "data is null, result='$result'"
-        }
-}
+@Deprecated(
+    "replace to androidx.activity.result.ActivityResult",
+    ReplaceWith("ActivityResult", imports = ["androidx.activity.result.ActivityResult"])
+)
+typealias ActivityResult = androidx.activity.result.ActivityResult

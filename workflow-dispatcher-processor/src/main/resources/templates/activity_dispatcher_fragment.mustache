@@ -8,17 +8,21 @@ import android.content.*
 import androidx.core.os.bundleOf
 import androidx.fragment.app.*
 import androidx.fragment.app.Fragment
+import androidx.activity.result.*
+import androidx.activity.result.ActivityResult
 import com.eaglesakura.workflowdispatcher.internal.*
 import com.eaglesakura.workflowdispatcher.activity.*
+import androidx.activity.result.contract.*
 import androidx.core.os.bundleOf
 import android.util.Log
+import androidx.core.app.*
 
 internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
     intent: Intent,
 {{#savedStateList}}
     {{name}}: {{typeName}}{{#nullable}}?{{/nullable}},
 {{/savedStateList}}
-    options: Bundle? = null,
+    options: ActivityOptionsCompat? = null,
 ) {
     val dispatcher = {{className}}()
     dispatcher.arguments = bundleOf(
@@ -28,11 +32,16 @@ internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
     )
     InternalWorkflowUtils.add(this, dispatcher, "{{className}}")
 
-    dispatcher.startActivityForResult(
-        intent,
-        {{className}}.REQUEST_CODE,
-        options,
-    )
+    if (options != null) {
+        dispatcher.{{entryPointFunctionName}}.launch(
+            intent,
+            options,
+        )
+    } else {
+        dispatcher.{{entryPointFunctionName}}.launch(
+            intent,
+        )
+    }
 }
 
 internal class {{className}} : Fragment() {
@@ -41,21 +50,19 @@ internal class {{className}} : Fragment() {
             get() = requireArguments().get("{{name}}") as {{typeName}}{{#nullable}}?{{/nullable}}
     {{/savedStateList}}
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        check(requestCode == REQUEST_CODE) {
-            "bad request code: $REQUEST_CODE"
+    val {{entryPointFunctionName}} =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            Log.d(TAG, "ActivityResultContracts.StartActivityForResult().result: $tag")
+            (InternalWorkflowUtils.requireParent(this) as {{callbackClassName}})
+                .{{callbackMethodName}}(
+                    result,
+                    {{#savedStateList}}
+                        {{name}},
+                    {{/savedStateList}}
+                )
+
+            InternalWorkflowUtils.remove(this)
         }
-
-        (InternalWorkflowUtils.requireParent(this) as {{callbackClassName}})
-            .{{callbackMethodName}}(
-                ActivityResult(resultCode, data),
-                {{#savedStateList}}
-                    {{name}},
-                {{/savedStateList}}
-            )
-
-        InternalWorkflowUtils.remove(this)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +85,6 @@ internal class {{className}} : Fragment() {
     }
 
     companion object {
-        internal const val REQUEST_CODE = 0x3103
         private const val TAG = "{{className}}"
     }
 }
