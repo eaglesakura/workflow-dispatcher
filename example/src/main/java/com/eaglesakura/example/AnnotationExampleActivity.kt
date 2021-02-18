@@ -65,6 +65,8 @@ class AnnotationExampleActivity : AppCompatActivity() {
     )
     internal fun onRuntimePermissionResult(result: RuntimePermissionResult) {
         if (!result.allGranted) {
+            Toast.makeText(this, "permission not granted: ${result.permissions}", Toast.LENGTH_LONG)
+                .show()
             finish()
             return
         }
@@ -85,6 +87,8 @@ class AnnotationExampleActivity : AppCompatActivity() {
         url: String
     ) {
         if (!result.allGranted) {
+            Toast.makeText(this, "permission not granted: ${result.permissions}", Toast.LENGTH_LONG)
+                .show()
             finish()
             return
         }

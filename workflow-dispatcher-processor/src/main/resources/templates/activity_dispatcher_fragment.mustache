@@ -9,6 +9,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.*
 import androidx.fragment.app.Fragment
 import androidx.activity.result.*
+import androidx.activity.result.ActivityResult
 import com.eaglesakura.workflowdispatcher.internal.*
 import com.eaglesakura.workflowdispatcher.activity.*
 import androidx.activity.result.contract.*
@@ -51,6 +52,7 @@ internal class {{className}} : Fragment() {
 
     val {{entryPointFunctionName}} =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            Log.d(TAG, "ActivityResultContracts.StartActivityForResult().result: $tag")
             (InternalWorkflowUtils.requireParent(this) as {{callbackClassName}})
                 .{{callbackMethodName}}(
                     result,

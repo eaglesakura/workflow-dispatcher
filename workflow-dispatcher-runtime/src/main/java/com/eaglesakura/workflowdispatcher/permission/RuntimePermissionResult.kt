@@ -16,9 +16,12 @@ data class RuntimePermissionResult(
      */
     val granted: List<Int>
 ) {
+
     /**
      * All granted values.
      */
     val allGranted: Boolean
         get() = granted.count { it != PackageManager.PERMISSION_GRANTED } == 0
+
+    companion object
 }
