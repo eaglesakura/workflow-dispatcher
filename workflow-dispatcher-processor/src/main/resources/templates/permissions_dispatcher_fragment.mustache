@@ -28,11 +28,13 @@ internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
             "{{name}}" to {{name}},
         {{/savedStateList}}
     )
-    InternalWorkflowUtils.add(this, dispatcher, "{{className}}")
 
-    dispatcher.{{entryPointFunctionName}}.launch(
-        permissions.toTypedArray(),
-    )
+    InternalWorkflowUtils.handler.post {
+        InternalWorkflowUtils.add(this, dispatcher, "{{className}}")
+        dispatcher.{{entryPointFunctionName}}.launch(
+            permissions.toTypedArray(),
+        )
+    }
 }
 
 internal class {{className}} : Fragment() {

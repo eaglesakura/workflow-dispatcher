@@ -26,7 +26,9 @@ internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
         {{/savedStateList}}
     )
 
-    InternalWorkflowUtils.show(this, dispatcher, "{{className}}")
+    InternalWorkflowUtils.handler.post {
+        InternalWorkflowUtils.show(this, dispatcher, "{{className}}")
+    }
 }
 
 internal class {{className}} : DialogFragment() {
@@ -64,7 +66,6 @@ internal class {{className}} : DialogFragment() {
                     {{/savedStateList}}
                 )
         }
-        InternalWorkflowUtils.remove(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

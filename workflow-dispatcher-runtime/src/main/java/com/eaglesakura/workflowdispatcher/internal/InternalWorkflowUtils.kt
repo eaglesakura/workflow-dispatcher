@@ -1,6 +1,8 @@
 package com.eaglesakura.workflowdispatcher.internal
 
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -61,6 +63,8 @@ object InternalWorkflowUtils {
             }
         )
     }
+
+    val handler = Handler(Looper.getMainLooper())
 
     private val commitNumber = AtomicInteger()
 }

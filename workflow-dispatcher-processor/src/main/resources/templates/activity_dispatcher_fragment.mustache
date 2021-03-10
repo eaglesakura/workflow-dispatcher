@@ -30,17 +30,20 @@ internal fun {{callbackClassName}}.{{entryPointFunctionName}}(
             "{{name}}" to {{name}},
         {{/savedStateList}}
     )
-    InternalWorkflowUtils.add(this, dispatcher, "{{className}}")
 
-    if (options != null) {
-        dispatcher.{{entryPointFunctionName}}.launch(
-            intent,
-            options,
-        )
-    } else {
-        dispatcher.{{entryPointFunctionName}}.launch(
-            intent,
-        )
+    InternalWorkflowUtils.handler.post {
+        InternalWorkflowUtils.add(this, dispatcher, "{{className}}")
+
+        if (options != null) {
+            dispatcher.{{entryPointFunctionName}}.launch(
+                intent,
+                options,
+            )
+        } else {
+            dispatcher.{{entryPointFunctionName}}.launch(
+                intent,
+            )
+        }
     }
 }
 

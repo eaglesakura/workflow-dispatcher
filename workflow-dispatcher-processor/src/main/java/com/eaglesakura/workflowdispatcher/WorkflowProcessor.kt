@@ -12,7 +12,10 @@ import javax.lang.model.element.TypeElement
 internal class WorkflowProcessor : AbstractProcessor() {
 
     @Suppress("FunctionName")
-    private fun process_v1_1(annotations: Set<TypeElement>, roundEnv: RoundEnvironment) {
+    private fun process_v1_1(
+        @Suppress("UNUSED_PARAMETER") annotations: Set<TypeElement>,
+        roundEnv: RoundEnvironment
+    ) {
         listOf(
             roundEnv.getElementsAnnotatedWith(OnDialogResultFlow::class.java)
                 .map { it as ExecutableElement },
