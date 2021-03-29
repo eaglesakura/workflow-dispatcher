@@ -2,12 +2,14 @@ package com.eaglesakura.workflowdispatcher
 
 import com.samskivert.mustache.Mustache
 import java.io.Writer
+import java.util.concurrent.locks.ReentrantLock
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.tools.StandardLocation
+import kotlin.concurrent.withLock
 
 internal class WorkflowFileGenerator2(
     @Suppress("unused") private val processor: WorkflowProcessor,
@@ -44,11 +46,24 @@ internal class WorkflowFileGenerator2(
         }
 
     private fun compileMustache(writer: Writer, templatePath: String, parameters: Any) {
-        val template = javaClass.classLoader.getResourceAsStream(templatePath).use { stream ->
-            checkNotNull(stream) {
-                "not found $templatePath"
+
+        val template = templateLock.withLock {
+            if (!templateCache.contains(templatePath)) {
+                val template =
+                    javaClass.classLoader.getResourceAsStream(templatePath).use { stream ->
+                        checkNotNull(stream) {
+                            "not found $templatePath"
+                        }
+                        stream.readBytes().toString(Charsets.UTF_8)
+                    }
+                println("load template($templatePath)")
+                templateCache[templatePath] = template
+            } else {
+                println("cached template($templatePath)")
             }
-            stream.readBytes().toString(Charsets.UTF_8)
+            requireNotNull(templateCache[templatePath]) {
+                "invalid template($templatePath)"
+            }
         }
 
         val mustache = Mustache.compiler().compile(template)
@@ -136,5 +151,10 @@ internal class WorkflowFileGenerator2(
                 )
             )
         }
+    }
+
+    companion object {
+        private val templateCache = mutableMapOf<String, String>()
+        private val templateLock = ReentrantLock()
     }
 }

@@ -3,7 +3,7 @@ buildscript {
         versions = [
                 kotlin            : "1.4.21",
                 kotlin_coroutines : "1.4.1",
-                android_plugin    : "4.1.2",
+                android_plugin    : "4.1.3",
                 android_minSdk    : 21,
                 android_targetSdk : 30,
                 android_buildTools: "30.0.3",
