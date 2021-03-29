@@ -45,24 +45,32 @@ internal class WorkflowFileGenerator2(
             }
         }
 
-    private fun compileMustache(writer: Writer, templatePath: String, parameters: Any) {
-
-        val template = templateLock.withLock {
-            if (!templateCache.contains(templatePath)) {
-                val template =
-                    javaClass.classLoader.getResourceAsStream(templatePath).use { stream ->
-                        checkNotNull(stream) {
-                            "not found $templatePath"
-                        }
-                        stream.readBytes().toString(Charsets.UTF_8)
+    private fun readTemplate(templatePath: String): String {
+        while (true) {
+            try {
+                templateLock.withLock {
+                    if (!templateCache.contains(templatePath)) {
+                        val template =
+                            javaClass.classLoader.getResourceAsStream(templatePath).use { stream ->
+                                checkNotNull(stream) {
+                                    "not found $templatePath"
+                                }
+                                stream.readBytes().toString(Charsets.UTF_8)
+                            }
+                        templateCache[templatePath] = template
                     }
-                templateCache[templatePath] = template
-            }
-            requireNotNull(templateCache[templatePath]) {
-                "invalid template($templatePath)"
+                    return requireNotNull(templateCache[templatePath]) {
+                        "invalid template($templatePath)"
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
+    }
 
+    private fun compileMustache(writer: Writer, templatePath: String, parameters: Any) {
+        val template = readTemplate(templatePath)
         val mustache = Mustache.compiler().compile(template)
         writer.write(
             mustache.execute(parameters)
