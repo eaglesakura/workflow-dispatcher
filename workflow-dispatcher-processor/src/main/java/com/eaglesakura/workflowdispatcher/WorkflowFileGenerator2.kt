@@ -56,10 +56,7 @@ internal class WorkflowFileGenerator2(
                         }
                         stream.readBytes().toString(Charsets.UTF_8)
                     }
-                println("load template($templatePath)")
                 templateCache[templatePath] = template
-            } else {
-                println("cached template($templatePath)")
             }
             requireNotNull(templateCache[templatePath]) {
                 "invalid template($templatePath)"
